@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Blender
+*.blend1
+*.blend2
+*.blend3
+
+render/img/*
+scenes/render.ies
+
 # C extensions
 *.so
 
