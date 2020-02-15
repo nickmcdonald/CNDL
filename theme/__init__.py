@@ -1,1 +1,1 @@
-from .styles import *
+from .styles import * # noqa
