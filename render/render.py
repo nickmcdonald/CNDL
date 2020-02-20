@@ -1,3 +1,15 @@
+########################################################
+#
+# Copyright (C) 2020-2021 Nick McDonald <nick@lazymorninggames.com>
+#
+# This file is part of CNDL.
+#
+# CNDL can not be copied and/or distributed without the express
+#
+# permission of Nick McDonald
+########################################################
+
+
 from multiprocessing import Process
 
 import pyluxcore as lux
@@ -5,7 +17,7 @@ import pyluxcore as lux
 
 def render(ies, samples):
     f = open("scenes/render.ies", "w")
-    f.write(ies.getIesOutput(False))
+    f.write(str(ies))
     f.close()
 
     p = Process(target=luxRender, args=(samples,))

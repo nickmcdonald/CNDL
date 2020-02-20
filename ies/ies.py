@@ -1,57 +1,56 @@
-import re
+########################################################
+#
+# Copyright (C) 2020-2021 Nick McDonald <nick@lazymorninggames.com>
+#
+# This file is part of CNDL.
+#
+# CNDL can not be copied and/or distributed without the express
+#
+# permission of Nick McDonald
+########################################################
 
 
 class IesData:
 
-    def __init__(self, lumens, latRes, longRes, val):
-        self.lumens = lumens
-        self.latRes = latRes
-        self.longRes = longRes
-        self.angles = []
+    def __init__(self, lumens, factor=1.0, units=2,
+                 openingWidth=0.0, openingLength=0.0, openingHeight=0.0):
+        self.lumens = float(lumens)
+        self.factor = float(factor)
+        self.units = units
+        self.openingWidth = float(openingWidth)
+        self.openingLength = float(openingLength)
+        self.openingHeight = float(openingHeight)
+        self.angles = {}
 
-        y = 0
-        while y < 360:
-            self.angles.append(IesAngle(y, latRes, val))
-            y += 360/longRes
+    def addAngle(self, angle, iesAngle):
+        self.angles[angle] = iesAngle
 
-    def getIesOutput(self, clamp):
+    def valueAt(self, lat, long=0) -> float:
+        return 1.0
+
+    def __str__(self) -> str:
         out = "IESNA91\n"
         out += "TILT=NONE\n"
-        out += "1 {0} 1 {1} {2} 1 2 1 1 1\n1.0 1.0 0.0\n\n"
-        out.format(self.lumens, len(self.angles[0].points), len(self.angles))
+        out += "1 {0:.2f} {1:.2f} {2} {3} 1 {4} {5:.2f} {6:.2f} {7:.2f}\n1.0 1.0 0.0\n\n"
 
-        n = 0
-        for point in self.angles[0].points:
-            out += "{0:.2f} ".format(point.latAngle)
-            if n == 9:
-                out += "\n"
-                n = 0
-            else:
-                n = n + 1
+        out = out.format(self.lumens,
+                         self.factor,
+                         len(self.angles[0].points),
+                         len(self.angles),
+                         self.units,
+                         self.openingWidth,
+                         self.openingLength,
+                         self.openingHeight)
+
+        out += self.angles[0].getLatAnglesOutput()
         out += "\n\n"
 
-        n = 0
-        for angle in self.angles:
-            out += "{0:.2f} ".format(angle.longAngle)
-            if n == 9:
-                out += "\n"
-                n = 0
-            else:
-                n = n + 1
+        for angle in sorted(self.angles.keys()):
+            out += "{0:.2f} ".format(angle)
         out += "\n\n"
 
-        for angle in self.angles:
-            n = 0
-            for point in angle.points:
-                i = point.intensity
-                if clamp and i > 1:
-                    i = 1
-                out += "{0:.2f} ".format(self.lumens * i)
-                if n == 9:
-                    out += "\n"
-                    n = 0
-                else:
-                    n = n + 1
+        for angle in sorted(self.angles.keys()):
+            out += str(self.angles[angle])
             out += "\n\n"
 
         return out
@@ -59,100 +58,78 @@ class IesData:
 
 class IesAngle:
 
-    def __init__(self, longAngle, latRes, intensity):
-        self.longAngle = longAngle
-        self.latRes = latRes
-        self.points = []
-        x = 0.00
-        while x <= 180:
-            self.points.append(IesPoint(longAngle, x, intensity))
-            x += 180/(latRes-1)
+    def __init__(self, latRes=0, intensity=0, points=None):
+        if points is None:
+            self.points = {}
+            x = 0.00
+            while x <= 180:
+                self.points[x] = intensity
+                x += 180 / (latRes - 1)
+        else:
+            self.points = points
 
-        self.points[len(self.points)-1].latAngle = 180
+    def getLatAnglesOutput(self) -> str:
+        out = ""
+        for angle in sorted(self.points.keys()):
+            out += "{0:.2f} ".format(angle)
+        return out
 
-    def updateAngle(self, longAngle):
-        self.longAngle = longAngle
-        for point in self.points:
-            point.longAngle = longAngle
-
-
-class IesPoint:
-
-    def __init__(self, longAngle, latAngle, intensity):
-        self.longAngle = longAngle
-        self.latAngle = latAngle
-        self.intensity = intensity
-        self.mask = 0
+    def __str__(self) -> str:
+        out = ""
+        for angle in sorted(self.points.keys()):
+            out += "{0:.2f} ".format(self.points[angle])
+        return out
 
 
-def readIesData(inp):
+def createIesData(lumens, latRes, longRes, intensity=0) -> IesData:
+    ies = IesData(lumens)
+    y = 0
+    while y < 360:
+        ies.addAngle(round(y, 2), IesAngle(latRes=latRes, intensity=intensity))
+        y += 360/longRes
 
-    lines = inp.split("\n")
+    print(ies)
+    return ies
 
-    details = {}
-    settings = ""
-    latAngleStartIdx = 0
-    longAngleStartIdx = 0
-    valsStartIdx = 0
-    latAngles = []
-    longAngles = []
+
+def parseIesData(inp) -> IesData:
+
+    lines = [line.rstrip('\n') for line in inp]
+
+    dataStartLine = "TILT=NONE"
 
     for idx, line in enumerate(lines):
         ln = line.strip()
-
-        if line.startswith('['):
-            name = ln.split(']')[0].replace('[', '')
-            val = ln.split(']')[1]
-            details[name] = val
-        elif ln.startswith("TILT"):
-            settings = re.sub(' +', ' ', lines[idx+1]).split(' ')
-            latAngleStartIdx = idx + 3
-
-    lumens = int(settings[1])
-    latNums = int(settings[3])
-    longNums = int(settings[4])
-    # openingSize = tuple(settings[7], settings[8], settings[9])
-
-    ies = IesData(lumens, latNums, longNums, 0)
-
-    latAnglesRead = 0
-    for idx in range(latAngleStartIdx, len(lines)):
-        vals = lines[idx].split()
-        for val in vals:
-            latAngles.append(float(val))
-            latAnglesRead += 1
-        if latAnglesRead >= latNums:
-            longAngleStartIdx = idx+1
+        if ln.startswith("TILT"):
+            dataStartLine = line
             break
 
-    longAnglesRead = 0
-    for idx in range(longAngleStartIdx, len(lines)):
-        vals = lines[idx].split()
-        for val in vals:
-            longAngles.append(float(val))
-            longAnglesRead += 1
-        if longAnglesRead >= longNums:
-            valsStartIdx = idx+1
-            break
+    data = inp.split(dataStartLine)[1].split(None)
 
-    brightest = 0
-    valsIdx = 0
-    angleIdx = 0
-    for idx in range(valsStartIdx, len(lines)):
-        vals = lines[idx].split()
-        for val in vals:
-            if float(val) > brightest:
-                brightest = float(val)
-            if valsIdx >= latNums:
-                valsIdx = 0
-                angleIdx += 1
-            ies.angles[angleIdx].points[valsIdx].intensity = float(val)
-            ies.angles[angleIdx].points[valsIdx].latAngle = latAngles[valsIdx]
-            valsIdx += 1
+    lumens = float(data[1])
+    multiplyFactor = float(data[2])
+    latAnglesNum = int(float(data[3]))
+    longAnglesNum = int(float(data[4]))
+    units = int(float(data[6]))
+    openingWidth = float(data[7])
+    openingLength = float(data[8])
+    openingHeight = float(data[9])
 
-    ies.lumens = brightest
-    for angle in ies.angles:
-        for point in angle.points:
-            point.intensity /= brightest
+    ies = IesData(lumens, multiplyFactor, units,
+                  openingWidth, openingLength, openingHeight)
 
+    latAnglesStart = 13
+    longAnglesStart = latAnglesStart + latAnglesNum
+    valuesStart = longAnglesStart + longAnglesNum
+
+    for angle in range(longAnglesStart, longAnglesStart + longAnglesNum):
+        angleNum = angle - longAnglesStart
+        angleDataStart = valuesStart + (angleNum * latAnglesNum)
+        points = {}
+        for lat in range(latAnglesStart, latAnglesStart + latAnglesNum):
+            points[float(data[lat])] = float(data[angleDataStart + angleNum])
+
+        ies.addAngle(float(data[angle]), IesAngle(points=points))
+
+    print(ies)
     return ies
