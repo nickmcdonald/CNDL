@@ -15,6 +15,7 @@ from screeninfo import get_monitors
 
 import qtpynodeeditor as nodeeditor
 from qtpy.QtWidgets import QApplication
+from qtpy.QtGui import QIcon
 
 from nodes import IesFileSourceDataModel, IesDefaultSourceDataModel
 from nodes import AdditionModel, IesDisplayModel
@@ -52,6 +53,7 @@ def main(app):
 if __name__ == '__main__':
     log.basicConfig(level='DEBUG')
     app = QApplication([])
+    app.setWindowIcon(QIcon('img/LogoBold.png'))
     scene, view = main(app)
     view.show()
     app.exec_()

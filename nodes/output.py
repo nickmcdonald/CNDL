@@ -51,7 +51,7 @@ class IesDisplayModel(NodeDataModel):
         self._ies = IesNodeData()
         self._label = QLabel()
         self._label.setMargin(3)
-        self._label.setPixmap(QPixmap('render/img/image.png'))
+        self._label.setPixmap(QPixmap('img/RenderPlaceholder.png'))
         self._render_passes = 2
         self._validation_state = NodeValidationState.warning
         self._validation_message = 'Uninitialized'
@@ -77,7 +77,7 @@ class IesDisplayModel(NodeDataModel):
         else:
             self._validation_state = NodeValidationState.warning
             self._validation_message = "Missing or incorrect inputs"
-            self._label.clear()
+            self._label.setPixmap(QPixmap('img/RenderPlaceholder.png'))
 
     def update_image(self):
         self._label.setPixmap(QPixmap('render/img/image.png'))
