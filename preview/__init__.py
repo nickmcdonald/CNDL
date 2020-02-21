@@ -10,7 +10,4 @@
 ########################################################
 
 
-from .data import IesNodeData # noqa
-from .source import * # noqa
-from .math import * # noqa
-from .output import * # noqa
+from .preview2d import * # noqa

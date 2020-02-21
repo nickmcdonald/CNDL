@@ -63,7 +63,7 @@ class IesAngle:
             self.points = {}
             x = 0.00
             while x <= 180:
-                self.points[x] = intensity
+                self.points[round(x, 2)] = intensity
                 x += 180 / (latRes - 1)
         else:
             self.points = points
@@ -81,14 +81,13 @@ class IesAngle:
         return out
 
 
-def createIesData(lumens, latRes, longRes, intensity=0) -> IesData:
+def createIesData(lumens=800, latRes=50, longRes=1, intensity=0) -> IesData:
     ies = IesData(lumens)
     y = 0
     while y < 360:
         ies.addAngle(round(y, 2), IesAngle(latRes=latRes, intensity=intensity))
         y += 360/longRes
 
-    print(ies)
     return ies
 
 
@@ -127,9 +126,9 @@ def parseIesData(inp) -> IesData:
         angleDataStart = valuesStart + (angleNum * latAnglesNum)
         points = {}
         for lat in range(latAnglesStart, latAnglesStart + latAnglesNum):
-            points[float(data[lat])] = float(data[angleDataStart + angleNum])
-
+            latNum = lat - latAnglesStart
+            points[float(data[lat])] = float(data[angleDataStart + latNum])
+        print(points)
         ies.addAngle(float(data[angle]), IesAngle(points=points))
 
-    print(ies)
     return ies

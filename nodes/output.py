@@ -52,7 +52,7 @@ class IesDisplayModel(NodeDataModel):
         self._label = QLabel()
         self._label.setMargin(3)
         self._label.setPixmap(QPixmap('render/img/image.png'))
-        self._samples = 20
+        self._render_passes = 2
         self._validation_state = NodeValidationState.warning
         self._validation_message = 'Uninitialized'
 
@@ -72,7 +72,7 @@ class IesDisplayModel(NodeDataModel):
         if ies_ok:
             self._validation_state = NodeValidationState.valid
             self._validation_message = ''
-            render(self._ies.ies, self._samples)
+            render(self._ies.ies, self._render_passes)
 
         else:
             self._validation_state = NodeValidationState.warning

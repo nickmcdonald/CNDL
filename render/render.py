@@ -14,6 +14,8 @@ from multiprocessing import Process
 
 import pyluxcore as lux
 
+from time import sleep
+
 
 def render(ies, samples):
     f = open("scenes/render.ies", "w")
@@ -35,19 +37,24 @@ def luxRender(samples):
     session = lux.RenderSession(config)
 
     session.Start()
-
-    for x in range(samples):
+    previousPass = -1
+    while True:
 
         session.UpdateStats()
         stats = session.GetStats()
 
-        print("[Elapsed time: %3d/10sec][Samples %4d][Avg. samples/sec % 3.2f]"
-              % (
-                stats.Get("stats.renderengine.time").GetFloat(),
-                stats.Get("stats.renderengine.pass").GetInt(),
-                stats.Get("stats.renderengine.total.samplesec").GetFloat()
-                / 1000000.0))
+        elapsed = stats.Get("stats.renderengine.time").GetFloat()
+        currentPass = stats.Get("stats.renderengine.pass").GetInt()
+        speed = stats.Get("stats.renderengine.total.samplesec"
+                          ).GetFloat() / 1000000.0
 
-        session.GetFilm().Save()
+        print("[Elapsed time: %3d/10sec][Samples %4d][Avg. samples/sec % 3.2f]"
+              % (elapsed, currentPass, speed))
+        if currentPass > previousPass:
+            session.GetFilm().Save()
+            previousPass = currentPass
+        if currentPass >= samples or elapsed > 3:
+            break
+        sleep(0.1)
 
     session.Stop()
