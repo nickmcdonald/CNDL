@@ -18,9 +18,13 @@ from qtpy.QtWidgets import QApplication
 from qtpy.QtGui import QIcon
 
 from nodes import IesFileSourceDataModel, IesDefaultSourceDataModel
-from nodes import AdditionModel, IesDisplayModel
+from nodes import MixModel, IesDisplayModel
 
 import theme.styles as styles
+
+from multiprocessing import freeze_support
+
+freeze_support()
 
 
 def main(app):
@@ -30,7 +34,7 @@ def main(app):
 
     models = (IesFileSourceDataModel,
               IesDefaultSourceDataModel,
-              AdditionModel,
+              MixModel,
               IesDisplayModel)
 
     for model in models:

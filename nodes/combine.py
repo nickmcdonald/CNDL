@@ -12,15 +12,19 @@
 
 import contextlib
 
-from ies import IesData
+from ies import mixIesData, MixMethod
 
 from nodes import IesNodeData
+
+from preview import Preview2D
+
+from qtpy.QtWidgets import QWidget, QGroupBox, QFormLayout, QComboBox
 
 from qtpynodeeditor import NodeData, NodeDataModel
 from qtpynodeeditor import NodeValidationState, Port
 
 
-class MathOperationDataModel(NodeDataModel):
+class CombineOperationDataModel(NodeDataModel):
     caption_visible = True
     num_ports = {'input': 2, 'output': 1}
     port_caption_visible = True
@@ -31,6 +35,13 @@ class MathOperationDataModel(NodeDataModel):
         self._ies1 = None
         self._ies2 = None
         self._result = None
+
+        self._form = QGroupBox()
+        self._layout = QFormLayout()
+        self._form.setLayout(self._layout)
+        self._preview = Preview2D(None)
+        self._layout.addRow(self._preview)
+
         self._validation_state = NodeValidationState.warning
         self._validation_message = 'Uninitialized'
 
@@ -92,6 +103,10 @@ class MathOperationDataModel(NodeDataModel):
         if self._check_inputs():
             with self._compute_lock():
                 self.compute()
+                self.update()
+
+    def embedded_widget(self) -> QWidget:
+        return self._form
 
     def validation_state(self) -> NodeValidationState:
         return self._validation_state
@@ -99,12 +114,29 @@ class MathOperationDataModel(NodeDataModel):
     def validation_message(self) -> str:
         return self._validation_message
 
+    def update(self):
+        self._preview.update(self._result.ies)
+
     def compute(self):
         ...
 
 
-class AdditionModel(MathOperationDataModel):
-    name = "Addition"
+class MixModel(CombineOperationDataModel):
+    name = "Mix"
+
+    def __init__(self, style=None, parent=None):
+        super().__init__(style=style, parent=parent)
+        self._methodCB = QComboBox()
+        self._layout.addRow(self._methodCB)
+
+        for method in MixMethod:
+            self._methodCB.addItem(method.value)
+
+    def selectionchange(self, i):
+        for count in range(self.cb.count()):
+            self.cb.currentText()
 
     def compute(self):
-        self._result = IesData(600, 50, 1, 0)
+        self._result = IesNodeData(mixIesData(self._ies1.ies,
+                                              self._ies2.ies,
+                                              MixMethod(self._methodCB.currentText())))

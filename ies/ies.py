@@ -12,37 +12,100 @@
 
 class IesData:
 
-    def __init__(self, lumens, factor=1.0, units=2,
-                 openingWidth=0.0, openingLength=0.0, openingHeight=0.0):
-        self.lumens = float(lumens)
-        self.factor = float(factor)
-        self.units = units
-        self.openingWidth = float(openingWidth)
-        self.openingLength = float(openingLength)
-        self.openingHeight = float(openingHeight)
+    def __init__(self):
         self.angles = {}
 
-    def addAngle(self, angle, iesAngle):
+    def addAngle(self, angle, iesAngle) -> bool:
+        if len(self.angles) > 0:
+            if len(self.getLatAngles()) == len(iesAngle.points):
+                angles = self.getLatAngles()
+                for point in iesAngle.points:
+                    if point not in angles:
+                        return False
+            else:
+                return False
         self.angles[angle] = iesAngle
+        return True
 
-    def valueAt(self, lat, long=0) -> float:
-        return 1.0
+    def getLatAngles(self):
+        return self.angles[next(iter(self.angles.keys()))].points.keys()
 
-    def __str__(self) -> str:
+    def getLongAngles(self):
+        return self.angles.keys()
+
+    def valueAt(self, lat=0.0, long=0.0) -> float:
+        if len(self.angles) == 0:
+            return 0.0
+        previousLong = 0.0
+        nextLong = 0.0
+        previousLat = 0.0
+        nextLat = 0.0
+
+        for angle in self.angles:
+
+            if angle <= long:
+                previousLong = angle
+            else:
+                nextLong = angle
+                break
+        nextLong = max(previousLong, nextLong)
+
+        latAngles = self.getLatAngles()
+        for point in latAngles:
+            if point <= lat:
+                previousLat = point
+            else:
+                nextLat = point
+                break
+        nextLat = max(previousLat, nextLat)
+
+        percentLong = 0.0
+        if (nextLong - previousLong) != 0:
+            percentLong = (long - previousLong) / (nextLong - previousLong)
+        percentLat = 0.0
+        if (nextLat - previousLat) != 0:
+            percentLat = (lat - previousLat) / (nextLat - previousLat)
+
+        v1 = self.angles[previousLong].points[previousLat]
+        v2 = self.angles[previousLong].points[nextLat]
+        v3 = self.angles[nextLong].points[previousLat]
+        v4 = self.angles[nextLong].points[nextLat]
+        v5 = v1 + ((v2 - v1) * percentLat)
+        v6 = v3 + ((v4 - v3) * percentLat)
+        return v5 + ((v6 - v5) * percentLong)
+
+    def getPeakBrightness(self) -> float:
+        peak = 0
+        for angle in self.angles.values():
+            anglePeak = angle.getPeakBrightness()
+            if anglePeak > peak:
+                peak = anglePeak
+        return peak
+
+    def getAvgBrightness(self) -> float:
+        total = 0
+        for angle in self.angles.values():
+            total += angle.getAvgBrightness()
+        return total / len(self.angles)
+
+    def getIesOutput(self, peakIntensity, factor=1.0,
+                     units=2, openingWidth=0.0,
+                     openingLength=0.0, openingHeight=0.0) -> str:
         out = "IESNA91\n"
         out += "TILT=NONE\n"
-        out += "1 {0:.2f} {1:.2f} {2} {3} 1 {4} {5:.2f} {6:.2f} {7:.2f}\n1.0 1.0 0.0\n\n"
-
-        out = out.format(self.lumens,
-                         self.factor,
-                         len(self.angles[0].points),
+        out += "1 {0:.2f} {1:.2f} {2} {3} 1 {4} {5:.2f} {6:.2f} {7:.2f}\n"
+        out += "1.0 1.0 0.0\n\n"
+        out = out.format(-1,
+                         factor,
+                         len(self.getLatAngles()),
                          len(self.angles),
-                         self.units,
-                         self.openingWidth,
-                         self.openingLength,
-                         self.openingHeight)
+                         units,
+                         openingWidth,
+                         openingLength,
+                         openingHeight)
 
-        out += self.angles[0].getLatAnglesOutput()
+        for angle in sorted(self.getLatAngles()):
+            out += "{0:.2f} ".format(angle)
         out += "\n\n"
 
         for angle in sorted(self.angles.keys()):
@@ -50,7 +113,7 @@ class IesData:
         out += "\n\n"
 
         for angle in sorted(self.angles.keys()):
-            out += str(self.angles[angle])
+            out += self.angles[angle].getIesOutput(peakIntensity)
             out += "\n\n"
 
         return out
@@ -68,67 +131,18 @@ class IesAngle:
         else:
             self.points = points
 
-    def getLatAnglesOutput(self) -> str:
+    def getPeakBrightness(self) -> float:
+        peak = 0
+        for val in self.points.values():
+            if val > peak:
+                peak = val
+        return peak
+
+    def getAvgBrightness(self) -> float:
+        return sum(self.angles.values()) / len(self.angles)
+
+    def getIesOutput(self, peakIntensity) -> str:
         out = ""
         for angle in sorted(self.points.keys()):
-            out += "{0:.2f} ".format(angle)
+            out += "{0:.2f} ".format(self.points[angle] * peakIntensity)
         return out
-
-    def __str__(self) -> str:
-        out = ""
-        for angle in sorted(self.points.keys()):
-            out += "{0:.2f} ".format(self.points[angle])
-        return out
-
-
-def createIesData(lumens=800, latRes=50, longRes=1, intensity=0) -> IesData:
-    ies = IesData(lumens)
-    y = 0
-    while y < 360:
-        ies.addAngle(round(y, 2), IesAngle(latRes=latRes, intensity=intensity))
-        y += 360/longRes
-
-    return ies
-
-
-def parseIesData(inp) -> IesData:
-
-    lines = [line.rstrip('\n') for line in inp]
-
-    dataStartLine = "TILT=NONE"
-
-    for idx, line in enumerate(lines):
-        ln = line.strip()
-        if ln.startswith("TILT"):
-            dataStartLine = line
-            break
-
-    data = inp.split(dataStartLine)[1].split(None)
-
-    lumens = float(data[1])
-    multiplyFactor = float(data[2])
-    latAnglesNum = int(float(data[3]))
-    longAnglesNum = int(float(data[4]))
-    units = int(float(data[6]))
-    openingWidth = float(data[7])
-    openingLength = float(data[8])
-    openingHeight = float(data[9])
-
-    ies = IesData(lumens, multiplyFactor, units,
-                  openingWidth, openingLength, openingHeight)
-
-    latAnglesStart = 13
-    longAnglesStart = latAnglesStart + latAnglesNum
-    valuesStart = longAnglesStart + longAnglesNum
-
-    for angle in range(longAnglesStart, longAnglesStart + longAnglesNum):
-        angleNum = angle - longAnglesStart
-        angleDataStart = valuesStart + (angleNum * latAnglesNum)
-        points = {}
-        for lat in range(latAnglesStart, latAnglesStart + latAnglesNum):
-            latNum = lat - latAnglesStart
-            points[float(data[lat])] = float(data[angleDataStart + latNum])
-        print(points)
-        ies.addAngle(float(data[angle]), IesAngle(points=points))
-
-    return ies

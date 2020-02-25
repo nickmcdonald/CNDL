@@ -10,7 +10,7 @@
 ########################################################
 
 
-from ies import parseIesData, createIesData
+from ies import parseIesData, blankIesData
 
 from nodes import IesNodeData
 
@@ -20,6 +20,7 @@ from qtpy.QtWidgets import QWidget, QPushButton
 from qtpy.QtWidgets import QFileDialog, QGroupBox, QFormLayout
 
 from qtpynodeeditor import NodeData, NodeDataModel, PortType
+from qtpy.QtGui import QColor
 
 
 class IesSourceDataModel(NodeDataModel):
@@ -31,14 +32,15 @@ class IesSourceDataModel(NodeDataModel):
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._ies = IesNodeData(createIesData())
+        self._ies = IesNodeData(blankIesData())
 
         self._form = QGroupBox("Ies Source")
+        self._form.setStyleSheet("background-color:rgba(0,0,0,0%);")
         self._layout = QFormLayout()
         self._form.setLayout(self._layout)
-        self._preview = Preview2D()
-        self._layout.addRow("preview", self._preview)
-        self._form.resize(400, 500)
+        self._preview = Preview2D(self._ies.ies)
+        self._layout.addRow(self._preview)
+
         self.update()
 
     def save(self) -> dict:
@@ -80,10 +82,9 @@ class IesDefaultSourceDataModel(IesSourceDataModel):
         self._open_file_button = QPushButton("create")
         self._open_file_button.clicked.connect(self.on_file_button)
         self._layout.addRow("create", self._open_file_button)
+        self._ies = IesNodeData(blankIesData())
 
     def on_file_button(self):
-        self._ies = IesNodeData(createIesData(1000, 50, 50, 1022))
-        print(self._ies.ies)
         self.update()
 
 
@@ -110,5 +111,4 @@ class IesFileSourceDataModel(IesSourceDataModel):
             with f:
                 data = f.read()
                 self._ies = IesNodeData(parseIesData(data))
-                print(self._ies.ies)
                 self.update()

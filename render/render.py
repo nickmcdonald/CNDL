@@ -17,9 +17,9 @@ import pyluxcore as lux
 from time import sleep
 
 
-def render(ies, samples):
+def render(ies, peakIntensity, samples):
     f = open("scenes/render.ies", "w")
-    f.write(str(ies))
+    f.write(ies.getIesOutput(peakIntensity))
     f.close()
 
     p = Process(target=luxRender, args=(samples,))

@@ -14,34 +14,32 @@ from qtpy.QtWidgets import QWidget, QStylePainter
 from qtpy.QtGui import QBrush, QColor
 from qtpy.QtCore import QRect, QSize, Qt
 
-from ies import createIesData
+from ies import blankIesData
 
 
 class Preview2D(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, ies, parent=None):
         QWidget.__init__(self, parent)
-        self.setGeometry(QRect(0, 0, 256, 256))
-        self._ies = createIesData()
+        self._ies = blankIesData()
 
     def update(self, ies):
         self._ies = ies
         self.repaint()
 
+    def sizeHint(self):
+        return QSize(256, 256)
+
     def paintEvent(self, e):
         QWidget.paintEvent(self, e)
         painter = QStylePainter(self)
-        self.resize(QSize(256, 256))
+        painter.setRenderHint(QStylePainter.Antialiasing)
 
         brush = QBrush(Qt.SolidPattern)
         canvas = QRect(0, 0, 256, 256)
         painter.setBrush(brush)
 
-        brightest = 0.0
-
-        for point in self._ies.angles[0].points.values():
-            if point > brightest:
-                brightest = point
+        brightest = self._ies.angles[0].getPeakBrightness()
 
         points = self._ies.angles[0].points
         angles = sorted(self._ies.angles[0].points.keys())

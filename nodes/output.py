@@ -50,7 +50,6 @@ class IesDisplayModel(NodeDataModel):
         super().__init__(style=style, parent=parent)
         self._ies = IesNodeData()
         self._label = QLabel()
-        self._label.setMargin(3)
         self._label.setPixmap(QPixmap('img/RenderPlaceholder.png'))
         self._render_passes = 2
         self._validation_state = NodeValidationState.warning
@@ -72,7 +71,7 @@ class IesDisplayModel(NodeDataModel):
         if ies_ok:
             self._validation_state = NodeValidationState.valid
             self._validation_message = ''
-            render(self._ies.ies, self._render_passes)
+            render(self._ies.ies, 1000, self._render_passes)
 
         else:
             self._validation_state = NodeValidationState.warning
