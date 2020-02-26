@@ -45,7 +45,8 @@ class Preview2D(QWidget):
         angles = sorted(self._ies.angles[0].points.keys())
         for angle in range(0, len(angles)-1):
             if brightest > 0.0:
-                color = int(points[angles[angle]] / brightest * 255)
+                # color = int(points[angles[angle]] / brightest * 255)
+                color = int(points[angles[angle]] * 255)
             else:
                 color = 0
             brush.setColor(QColor(color, color, color))

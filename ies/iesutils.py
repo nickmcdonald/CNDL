@@ -12,7 +12,10 @@
 
 from enum import Enum
 
+import math
+
 from ies import IesData, IesAngle
+
 
 DEFAULT_LAT = 180
 DEFAULT_LONG = 1
@@ -30,11 +33,30 @@ class FalloffMethod(Enum):
     SMOOTH = 'Smooth'
     LINEAR = 'Linear'
     SHARP = 'Sharp'
+    ROOT = 'Root'
 
 
 class LightDirection(Enum):
-    UP = 1
-    DOWN = 2
+    DOWN = 'Down'
+    UP = 'Up'
+
+
+def linearInterpolate(a, b, x):
+    return a * (1 - x) + b * x
+
+
+def smoothInterpolate(a, b, x):
+    ft = x * math.pi
+    f = (1 - math.cos(ft)) / 2
+    return a * (1 - f) + b * f
+
+
+def sharpInterpolate(a, b, x):
+    return (b - a) * x ** 2 + a
+
+
+def rootInterpolate(a, b, x):
+    return (b - a) * math.sqrt(x) + a
 
 
 def mixIesData(ies1, ies2, method) -> IesData:
@@ -70,18 +92,68 @@ def mixIesData(ies1, ies2, method) -> IesData:
 def blankIesData(latRes=DEFAULT_LAT,
                  longRes=DEFAULT_LONG, intensity=0) -> IesData:
     ies = IesData()
-    y = 0
-    while y < 360:
-        ies.addAngle(round(y, 2), IesAngle(latRes=latRes, intensity=intensity))
-        y += 360/longRes
+    long = 0.0
+    while long <= 360:
+        ies.addAngle(round(long, 2),
+                     IesAngle(latRes=latRes, intensity=intensity))
+        long += round(360 / longRes, 2)
 
     return ies
 
 
-def spotlightIesData(lumens, angle, falloff, falloffMethod,
+def spotlightIesData(angle, falloff, falloffMethod=FalloffMethod.SMOOTH,
                      lightDirection=LightDirection.DOWN,
-                     latRes=DEFAULT_LAT, longRes=DEFAULT_LONG):
-    pass
+                     latRes=DEFAULT_LAT, longRes=DEFAULT_LONG) -> IesData:
+    ies = IesData()
+    long = 0.0
+    while long <= 360:
+        points = {}
+        lat = 0
+        while lat <= 180:
+            if lightDirection is LightDirection.DOWN:
+                if lat < angle:
+                    falloffSize = angle * falloff
+                    falloffStart = angle - falloffSize
+                    if lat > falloffStart and falloffSize != 0.0:
+                        amount = (lat - falloffStart) / falloffSize
+                        if falloffMethod == FalloffMethod.SMOOTH:
+                            points[lat] = smoothInterpolate(1, 0, amount)
+                        elif falloffMethod == FalloffMethod.LINEAR:
+                            points[lat] = linearInterpolate(1, 0, amount)
+                        elif falloffMethod == FalloffMethod.SHARP:
+                            points[lat] = sharpInterpolate(1, 0, amount)
+                        elif falloffMethod == FalloffMethod.ROOT:
+                            points[lat] = rootInterpolate(1, 0, amount)
+                    else:
+                        points[lat] = 1.0
+                else:
+                    points[lat] = 0.0
+            else:
+                if lat > 180 - angle:
+                    falloffStart = 180 - angle
+                    falloffSize = angle * falloff
+                    if lat < falloffStart + falloffSize and falloffSize != 0.0:
+                        amount = (lat - falloffStart) / falloffSize
+                        if falloffMethod == FalloffMethod.SMOOTH:
+                            points[lat] = smoothInterpolate(0, 1, amount)
+                        elif falloffMethod == FalloffMethod.LINEAR:
+                            points[lat] = linearInterpolate(0, 1, amount)
+                        elif falloffMethod == FalloffMethod.SHARP:
+                            points[lat] = sharpInterpolate(0, 1, amount)
+                        elif falloffMethod == FalloffMethod.ROOT:
+                            points[lat] = rootInterpolate(0, 1, amount)
+                    else:
+                        points[lat] = 1.0
+                else:
+                    points[lat] = 0.0
+
+            lat += round(180 / latRes, 2)
+
+        ies.addAngle(round(long, 2), IesAngle(points=points))
+
+        long += 360 / longRes
+
+    return ies
 
 
 def normalizeIesData(ies) -> IesData:

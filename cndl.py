@@ -17,7 +17,8 @@ import qtpynodeeditor as nodeeditor
 from qtpy.QtWidgets import QApplication
 from qtpy.QtGui import QIcon
 
-from nodes import IesFileSourceDataModel, IesDefaultSourceDataModel
+from nodes import IesFileSourceDataModel, IesBlankSourceDataModel
+from nodes import IesSpotlightSourceDataModel
 from nodes import MixModel, IesDisplayModel
 
 import theme.styles as styles
@@ -33,7 +34,8 @@ def main(app):
     registry = nodeeditor.DataModelRegistry()
 
     models = (IesFileSourceDataModel,
-              IesDefaultSourceDataModel,
+              IesBlankSourceDataModel,
+              IesSpotlightSourceDataModel,
               MixModel,
               IesDisplayModel)
 

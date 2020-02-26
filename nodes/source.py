@@ -10,17 +10,19 @@
 ########################################################
 
 
-from ies import parseIesData, blankIesData
+from ies import parseIesData, blankIesData, spotlightIesData
+from ies import FalloffMethod, LightDirection
 
 from nodes import IesNodeData
 
 from preview import Preview2D
 
-from qtpy.QtWidgets import QWidget, QPushButton
-from qtpy.QtWidgets import QFileDialog, QGroupBox, QFormLayout
+from qtpy.QtWidgets import QWidget, QPushButton, QSlider
+from qtpy.QtWidgets import QFileDialog, QGroupBox, QFormLayout, QComboBox
 
 from qtpynodeeditor import NodeData, NodeDataModel, PortType
-from qtpy.QtGui import QColor
+
+from qtpy.QtCore import Qt
 
 
 class IesSourceDataModel(NodeDataModel):
@@ -34,14 +36,11 @@ class IesSourceDataModel(NodeDataModel):
         super().__init__(style=style, parent=parent)
         self._ies = IesNodeData(blankIesData())
 
-        self._form = QGroupBox("Ies Source")
-        self._form.setStyleSheet("background-color:rgba(0,0,0,0%);")
+        self._form = QGroupBox()
         self._layout = QFormLayout()
         self._form.setLayout(self._layout)
         self._preview = Preview2D(self._ies.ies)
         self._layout.addRow(self._preview)
-
-        self.update()
 
     def save(self) -> dict:
         # save the state
@@ -74,18 +73,72 @@ class IesSourceDataModel(NodeDataModel):
         self.data_updated.emit(0)
 
 
-class IesDefaultSourceDataModel(IesSourceDataModel):
-    name = "Default Source"
+class IesBlankSourceDataModel(IesSourceDataModel):
+    name = "Blank Source"
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._open_file_button = QPushButton("create")
-        self._open_file_button.clicked.connect(self.on_file_button)
-        self._layout.addRow("create", self._open_file_button)
         self._ies = IesNodeData(blankIesData())
 
-    def on_file_button(self):
+        self._intensitySlider = QSlider(Qt.Horizontal)
+        self._layout.addRow(self._intensitySlider)
+        self._intensitySlider.setMinimum(0)
+        self._intensitySlider.setMaximum(100)
+        self._intensitySlider.setValue(0)
+        self._intensitySlider.valueChanged.connect(self.update)
+
         self.update()
+
+    def update(self):
+        self._ies = IesNodeData(blankIesData(
+                    intensity=self._intensitySlider.value() / 100
+        ))
+        super().update()
+
+
+class IesSpotlightSourceDataModel(IesSourceDataModel):
+    name = "Spotlight Source"
+
+    def __init__(self, style=None, parent=None):
+        super().__init__(style=style, parent=parent)
+        self._ies = IesNodeData(spotlightIesData(45, 0.2))
+
+        self._methodCB = QComboBox()
+        self._layout.addRow(self._methodCB)
+        for method in FalloffMethod:
+            self._methodCB.addItem(method.value)
+        self._methodCB.currentIndexChanged.connect(self.update)
+
+        self._dirCB = QComboBox()
+        self._layout.addRow(self._dirCB)
+        for direction in LightDirection:
+            self._dirCB.addItem(direction.value)
+        self._dirCB.currentIndexChanged.connect(self.update)
+
+        self._angleSlider = QSlider(Qt.Horizontal)
+        self._layout.addRow(self._angleSlider)
+        self._angleSlider.setMinimum(0)
+        self._angleSlider.setMaximum(90)
+        self._angleSlider.setValue(45)
+        self._angleSlider.valueChanged.connect(self.update)
+
+        self._falloffSlider = QSlider(Qt.Horizontal)
+        self._layout.addRow(self._falloffSlider)
+        self._falloffSlider.setMinimum(0)
+        self._falloffSlider.setMaximum(100)
+        self._falloffSlider.setValue(20)
+        self._falloffSlider.valueChanged.connect(self.update)
+
+        self.update()
+
+    def update(self):
+        self._ies = IesNodeData(spotlightIesData(
+                    self._angleSlider.value(),
+                    self._falloffSlider.value() / 100.0,
+                    falloffMethod=FalloffMethod(self._methodCB.currentText()),
+                    lightDirection=LightDirection(self._dirCB.currentText())
+        ))
+        super().update()
 
 
 class IesFileSourceDataModel(IesSourceDataModel):

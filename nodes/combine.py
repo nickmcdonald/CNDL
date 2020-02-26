@@ -10,8 +10,6 @@
 ########################################################
 
 
-import contextlib
-
 from ies import mixIesData, MixMethod
 
 from nodes import IesNodeData
@@ -57,23 +55,12 @@ class CombineOperationDataModel(NodeDataModel):
             self._validation_state = NodeValidationState.warning
             self._validation_message = "Missing or incorrect inputs"
             self._result = None
-            self.data_updated.emit(0)
+            self.update()
             return False
 
         self._validation_state = NodeValidationState.valid
         self._validation_message = ''
         return True
-
-    @contextlib.contextmanager
-    def _compute_lock(self):
-        if not self._ies1 or not self._ies2:
-            raise RuntimeError('inputs unset')
-
-        with self._ies1.lock:
-            with self._ies2.lock:
-                yield
-
-        self.data_updated.emit(0)
 
     def out_data(self, port: int) -> NodeData:
         '''
@@ -100,10 +87,8 @@ class CombineOperationDataModel(NodeDataModel):
         elif port.index == 1:
             self._ies2 = data
 
-        if self._check_inputs():
-            with self._compute_lock():
-                self.compute()
-                self.update()
+        if self._ies1 and self._ies2:
+            self.update()
 
     def embedded_widget(self) -> QWidget:
         return self._form
@@ -116,9 +101,7 @@ class CombineOperationDataModel(NodeDataModel):
 
     def update(self):
         self._preview.update(self._result.ies)
-
-    def compute(self):
-        ...
+        self.data_updated.emit(0)
 
 
 class MixModel(CombineOperationDataModel):
@@ -128,15 +111,14 @@ class MixModel(CombineOperationDataModel):
         super().__init__(style=style, parent=parent)
         self._methodCB = QComboBox()
         self._layout.addRow(self._methodCB)
-
         for method in MixMethod:
             self._methodCB.addItem(method.value)
+        self._methodCB.currentIndexChanged.connect(self.update)
 
-    def selectionchange(self, i):
-        for count in range(self.cb.count()):
-            self.cb.currentText()
-
-    def compute(self):
-        self._result = IesNodeData(mixIesData(self._ies1.ies,
-                                              self._ies2.ies,
-                                              MixMethod(self._methodCB.currentText())))
+    def update(self):
+        self._result = IesNodeData(mixIesData(
+                       self._ies1.ies,
+                       self._ies2.ies,
+                       MixMethod(self._methodCB.currentText())
+        ))
+        super().update()

@@ -13,7 +13,7 @@
 import logging as log
 import os
 
-from render import render
+from render import Renderer
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
@@ -52,6 +52,7 @@ class IesDisplayModel(NodeDataModel):
         self._label = QLabel()
         self._label.setPixmap(QPixmap('img/RenderPlaceholder.png'))
         self._render_passes = 2
+        self._renderer = Renderer()
         self._validation_state = NodeValidationState.warning
         self._validation_message = 'Uninitialized'
 
@@ -71,7 +72,7 @@ class IesDisplayModel(NodeDataModel):
         if ies_ok:
             self._validation_state = NodeValidationState.valid
             self._validation_message = ''
-            render(self._ies.ies, 1000, self._render_passes)
+            self._renderer.render(self._ies.ies, 1000, self._render_passes)
 
         else:
             self._validation_state = NodeValidationState.warning
