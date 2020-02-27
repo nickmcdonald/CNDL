@@ -10,12 +10,43 @@
 ########################################################
 
 
+class IesAngle:
+
+    def __init__(self, latRes: int = 0,
+                 intensity: float = 0,
+                 points: dict = None):
+        if points is None:
+            self.points = {}
+            x = 0.00
+            while x <= 180:
+                self.points[round(x, 2)] = intensity
+                x += 180 / (latRes - 1)
+        else:
+            self.points = points
+
+    def getPeakBrightness(self) -> float:
+        peak = 0
+        for val in self.points.values():
+            if val > peak:
+                peak = val
+        return peak
+
+    def getAvgBrightness(self) -> float:
+        return sum(self.angles.values()) / len(self.angles)
+
+    def getIesOutput(self, peakIntensity: float) -> str:
+        out = ""
+        for angle in sorted(self.points.keys()):
+            out += "{0:.2f} ".format(self.points[angle] * peakIntensity)
+        return out
+
+
 class IesData:
 
     def __init__(self):
         self.angles = {}
 
-    def addAngle(self, angle, iesAngle) -> bool:
+    def addAngle(self, angle: float, iesAngle: IesAngle) -> bool:
         if len(self.angles) > 0:
             if len(self.getLatAngles()) == len(iesAngle.points):
                 angles = self.getLatAngles()
@@ -33,7 +64,7 @@ class IesData:
     def getLongAngles(self):
         return self.angles.keys()
 
-    def valueAt(self, lat=0.0, long=0.0) -> float:
+    def valueAt(self, lat: float = 0.0, long: float = 0.0) -> float:
         if len(self.angles) == 0:
             return 0.0
         previousLong = 0.0
@@ -88,9 +119,12 @@ class IesData:
             total += angle.getAvgBrightness()
         return total / len(self.angles)
 
-    def getIesOutput(self, peakIntensity, factor=1.0,
-                     units=2, openingWidth=0.0,
-                     openingLength=0.0, openingHeight=0.0) -> str:
+    def getIesOutput(self, peakIntensity: float,
+                     factor: float = 1.0,
+                     units: int = 2,
+                     openingWidth: float = 0.0,
+                     openingLength: float = 0.0,
+                     openingHeight: float = 0.0) -> str:
         out = "IESNA91\n"
         out += "TILT=NONE\n"
         out += "1 {0:.2f} {1:.2f} {2} {3} 1 {4} {5:.2f} {6:.2f} {7:.2f}\n"
@@ -116,33 +150,4 @@ class IesData:
             out += self.angles[angle].getIesOutput(peakIntensity)
             out += "\n\n"
 
-        return out
-
-
-class IesAngle:
-
-    def __init__(self, latRes=0, intensity=0, points=None):
-        if points is None:
-            self.points = {}
-            x = 0.00
-            while x <= 180:
-                self.points[round(x, 2)] = intensity
-                x += 180 / (latRes - 1)
-        else:
-            self.points = points
-
-    def getPeakBrightness(self) -> float:
-        peak = 0
-        for val in self.points.values():
-            if val > peak:
-                peak = val
-        return peak
-
-    def getAvgBrightness(self) -> float:
-        return sum(self.angles.values()) / len(self.angles)
-
-    def getIesOutput(self, peakIntensity) -> str:
-        out = ""
-        for angle in sorted(self.points.keys()):
-            out += "{0:.2f} ".format(self.points[angle] * peakIntensity)
         return out

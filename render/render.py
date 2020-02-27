@@ -31,14 +31,11 @@ def luxRender(notify, samples, state):
 
         if state.value != RenderState.INTERRUPT.value:
             state.value = RenderState.WAITING.value
-            print("waiting")
             wasNotified = notify.wait(3)
             if not wasNotified:
-                print("killed")
                 break
             notify.clear()
         state.value = RenderState.RENDERING.value
-        print("rendering")
 
         try:
             props = lux.Properties("scenes/basicIES/basicIES.cfg")
@@ -58,7 +55,6 @@ def luxRender(notify, samples, state):
                 if currentPass > previousPass:
                     session.GetFilm().Save()
                     previousPass = currentPass
-                    print(currentPass)
                 if currentPass >= samples.value or elapsed > 3:
                     break
                 sleep(0.1)
@@ -89,7 +85,6 @@ class Renderer():
                                                self.samples,
                                                self.state))
             self.renderProcess.start()
-            print("started")
         self.samples.value = samples
         if self.state.value == RenderState.WAITING.value:
             self.notify.set()

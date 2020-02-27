@@ -41,29 +41,29 @@ class LightDirection(Enum):
     UP = 'Up'
 
 
-def linearInterpolate(a, b, x):
+def linearInterpolate(a: float, b: float, x: float):
     return a * (1 - x) + b * x
 
 
-def smoothInterpolate(a, b, x):
+def smoothInterpolate(a: float, b: float, x: float):
     ft = x * math.pi
     f = (1 - math.cos(ft)) / 2
     return a * (1 - f) + b * f
 
 
-def sharpInterpolate(a, b, x):
+def sharpInterpolate(a: float, b: float, x: float):
     return (b - a) * x ** 2 + a
 
 
-def rootInterpolate(a, b, x):
+def rootInterpolate(a: float, b: float, x: float):
     return (b - a) * math.sqrt(x) + a
 
 
-def mixIesData(ies1, ies2, method) -> IesData:
+def mixIesData(ies1: IesData, ies2: IesData, method: MixMethod) -> IesData:
     newIes = IesData()
 
-    longAngles = list(set().union(ies1.getLongAngles(), ies1.getLongAngles()))
-    latAngles = list(set().union(ies1.getLatAngles(), ies1.getLatAngles()))
+    longAngles = list(set().union(ies1.getLongAngles(), ies2.getLongAngles()))
+    latAngles = list(set().union(ies1.getLatAngles(), ies2.getLatAngles()))
 
     for angle in longAngles:
         points = {}
@@ -89,7 +89,7 @@ def mixIesData(ies1, ies2, method) -> IesData:
     return newIes
 
 
-def blankIesData(latRes=DEFAULT_LAT,
+def blankIesData(latRes: int = DEFAULT_LAT,
                  longRes=DEFAULT_LONG, intensity=0) -> IesData:
     ies = IesData()
     long = 0.0
@@ -156,15 +156,27 @@ def spotlightIesData(angle, falloff, falloffMethod=FalloffMethod.SMOOTH,
     return ies
 
 
-def normalizeIesData(ies) -> IesData:
+def normalizeIesData(ies: IesData) -> IesData:
+    newIes = IesData()
+
     peak = ies.getPeakBrightness()
     for angle in ies.angles:
+        points = {}
         for point in ies.angles[angle].points:
-            ies.angles[angle].points[point] /= peak
+            if peak != 0:
+                points[point] = ies.angles[angle].points[point] / peak
+            else:
+                points[point] = 1
+        newIes.addAngle(angle, IesAngle(points=points))
+    return newIes
+
+
+def applyIesDataNoise(ies, latscale, latintensity, longscale, longintensity,
+                      method=MixMethod.MULTIPLY, mask=None):
     return ies
 
 
-def parseIesData(inp) -> IesData:
+def parseIesData(inp: str) -> IesData:
 
     lines = [line.rstrip('\n') for line in inp]
 

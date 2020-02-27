@@ -19,7 +19,7 @@ from preview import Preview2D
 from qtpy.QtWidgets import QWidget, QGroupBox, QFormLayout, QComboBox
 
 from qtpynodeeditor import NodeData, NodeDataModel
-from qtpynodeeditor import NodeValidationState, Port
+from qtpynodeeditor import Port
 
 
 class CombineOperationDataModel(NodeDataModel):
@@ -30,9 +30,9 @@ class CombineOperationDataModel(NodeDataModel):
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._ies1 = None
-        self._ies2 = None
-        self._result = None
+        self._in1 = None
+        self._in2 = None
+        self._out = None
 
         self._form = QGroupBox()
         self._layout = QFormLayout()
@@ -40,27 +40,9 @@ class CombineOperationDataModel(NodeDataModel):
         self._preview = Preview2D(None)
         self._layout.addRow(self._preview)
 
-        self._validation_state = NodeValidationState.warning
-        self._validation_message = 'Uninitialized'
-
     @property
     def caption(self):
         return self.name
-
-    def _check_inputs(self):
-        ies1_ok = self._ies1 is not None and self._ies1.data_type.id in ('ies')
-        ies2_ok = self._ies2 is not None and self._ies2.data_type.id in ('ies')
-
-        if not ies1_ok or not ies2_ok:
-            self._validation_state = NodeValidationState.warning
-            self._validation_message = "Missing or incorrect inputs"
-            self._result = None
-            self.update()
-            return False
-
-        self._validation_state = NodeValidationState.valid
-        self._validation_message = ''
-        return True
 
     def out_data(self, port: int) -> NodeData:
         '''
@@ -72,7 +54,7 @@ class CombineOperationDataModel(NodeDataModel):
         -------
         value : NodeData
         '''
-        return self._result
+        return self._out
 
     def set_in_data(self, data: NodeData, port: Port):
         '''
@@ -83,24 +65,19 @@ class CombineOperationDataModel(NodeDataModel):
         port_index : int
         '''
         if port.index == 0:
-            self._ies1 = data
+            self._in1 = data
         elif port.index == 1:
-            self._ies2 = data
-
-        if self._ies1 and self._ies2:
-            self.update()
+            self._in2 = data
+        self.update()
 
     def embedded_widget(self) -> QWidget:
         return self._form
 
-    def validation_state(self) -> NodeValidationState:
-        return self._validation_state
-
-    def validation_message(self) -> str:
-        return self._validation_message
-
     def update(self):
-        self._preview.update(self._result.ies)
+        if self._out:
+            self._preview.update(self._out.data)
+        else:
+            self._preview.update(None)
         self.data_updated.emit(0)
 
 
@@ -116,9 +93,12 @@ class MixModel(CombineOperationDataModel):
         self._methodCB.currentIndexChanged.connect(self.update)
 
     def update(self):
-        self._result = IesNodeData(mixIesData(
-                       self._ies1.ies,
-                       self._ies2.ies,
-                       MixMethod(self._methodCB.currentText())
-        ))
+        if self._in1 and self._in2:
+            self._out = IesNodeData(mixIesData(
+                           self._in1.data,
+                           self._in2.data,
+                           MixMethod(self._methodCB.currentText())
+            ))
+        else:
+            self._out = None
         super().update()

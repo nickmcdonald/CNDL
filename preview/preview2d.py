@@ -9,21 +9,20 @@
 # permission of Nick McDonald
 ########################################################
 
+from ies import IesData
 
 from qtpy.QtWidgets import QWidget, QStylePainter
 from qtpy.QtGui import QBrush, QColor
 from qtpy.QtCore import QRect, QSize, Qt
 
-from ies import blankIesData
-
 
 class Preview2D(QWidget):
 
-    def __init__(self, ies, parent=None):
+    def __init__(self, ies: IesData, parent=None):
         QWidget.__init__(self, parent)
-        self._ies = blankIesData()
+        self._ies = None
 
-    def update(self, ies):
+    def update(self, ies: IesData):
         self._ies = ies
         self.repaint()
 
@@ -38,6 +37,10 @@ class Preview2D(QWidget):
         brush = QBrush(Qt.SolidPattern)
         canvas = QRect(0, 0, 256, 256)
         painter.setBrush(brush)
+        painter.drawPie(canvas, 0, 360 * 16)
+
+        if self._ies is None:
+            return
 
         brightest = self._ies.angles[0].getPeakBrightness()
 
@@ -46,7 +49,7 @@ class Preview2D(QWidget):
         for angle in range(0, len(angles)-1):
             if brightest > 0.0:
                 # color = int(points[angles[angle]] / brightest * 255)
-                color = int(points[angles[angle]] * 255)
+                color = min(int(points[angles[angle]] * 255), 255)
             else:
                 color = 0
             brush.setColor(QColor(color, color, color))

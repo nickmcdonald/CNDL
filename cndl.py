@@ -19,7 +19,7 @@ from qtpy.QtGui import QIcon
 
 from nodes import IesFileSourceDataModel, IesBlankSourceDataModel
 from nodes import IesSpotlightSourceDataModel
-from nodes import MixModel, IesDisplayModel
+from nodes import MixModel, IesDisplayModel, NoiseModel, NormalizeModel
 
 import theme.styles as styles
 
@@ -37,6 +37,8 @@ def main(app):
               IesBlankSourceDataModel,
               IesSpotlightSourceDataModel,
               MixModel,
+              NoiseModel,
+              NormalizeModel,
               IesDisplayModel)
 
     for model in models:

@@ -10,7 +10,6 @@
 ########################################################
 
 
-import logging as log
 import os
 
 from render import Renderer
@@ -35,7 +34,6 @@ class DisplayUpdateHandler(PatternMatchingEventHandler):
         self.update = update_method
 
     def on_modified(self, e):
-        log.debug(e)
         self.update()
 
 
@@ -72,7 +70,7 @@ class IesDisplayModel(NodeDataModel):
         if ies_ok:
             self._validation_state = NodeValidationState.valid
             self._validation_message = ''
-            self._renderer.render(self._ies.ies, 1000, self._render_passes)
+            self._renderer.render(self._ies.data, 1000, self._render_passes)
 
         else:
             self._validation_state = NodeValidationState.warning

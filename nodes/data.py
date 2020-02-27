@@ -10,7 +10,7 @@
 ########################################################
 
 
-from ies import IesData, blankIesData
+from ies import IesData
 
 from qtpynodeeditor import NodeData, NodeDataType
 
@@ -21,7 +21,7 @@ class IesNodeData(NodeData):
     'Node data holding Ies data'
     data_type = NodeDataType("ies", "IES")
 
-    def __init__(self, ies=blankIesData()):
+    def __init__(self, ies: IesData = None):
         self._ies = ies
         self._lock = threading.RLock()
 
@@ -30,7 +30,7 @@ class IesNodeData(NodeData):
         return self._lock
 
     @property
-    def ies(self) -> IesData:
+    def data(self) -> IesData:
         'The ies data'
         return self._ies
 

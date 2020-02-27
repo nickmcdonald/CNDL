@@ -39,14 +39,14 @@ class IesSourceDataModel(NodeDataModel):
         self._form = QGroupBox()
         self._layout = QFormLayout()
         self._form.setLayout(self._layout)
-        self._preview = Preview2D(self._ies.ies)
+        self._preview = Preview2D(self._ies.data)
         self._layout.addRow(self._preview)
 
     def save(self) -> dict:
         # save the state
         doc = super().save()
         if self._ies:
-            doc['ies'] = self._ies.ies
+            doc['ies'] = self._ies.data
         return doc
 
     def restore(self, state: dict):
@@ -69,7 +69,7 @@ class IesSourceDataModel(NodeDataModel):
         return self._form
 
     def update(self):
-        self._preview.update(self._ies.ies)
+        self._preview.update(self._ies.data)
         self.data_updated.emit(0)
 
 
