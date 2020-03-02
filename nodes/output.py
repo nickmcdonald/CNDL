@@ -10,8 +10,6 @@
 ########################################################
 
 
-import os
-
 from render import Renderer
 
 from watchdog.observers import Observer

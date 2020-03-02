@@ -11,9 +11,11 @@
 
 import os
 
-from multiprocessing import Process, Value, Event
-
+from multiprocessing import Value, Event
+from threading import Thread
+from array import array
 from enum import Enum
+from PIL import Image
 
 from scipy.spatial.transform import Rotation
 
@@ -50,21 +52,68 @@ def luxRender(notify, samples, state):
                 session.UpdateStats()
                 stats = session.GetStats()
 
-                elapsed = stats.Get("stats.renderengine.time").GetFloat()
-                currentPass = stats.Get("stats.renderengine.pass").GetInt()
+        while(True):
 
-                if currentPass > previousPass:
-                    session.GetFilm().Save()
-                    previousPass = currentPass
-                if currentPass >= samples.value or elapsed > 3:
+            if state.value != RenderState.INTERRUPT.value:
+                state.value = RenderState.WAITING.value
+                wasNotified = notify.wait(3)
+                if not wasNotified:
                     break
+                notify.clear()
+            state.value = RenderState.RENDERING.value
 
-            session.Stop()
-        except RuntimeError:
-            state.value = RenderState.INTERRUPT.value
-        finally:
-            if session:
+            try:
+                props = lux.Properties("scenes/basicIES/basicIES.cfg")
+                config = lux.RenderConfig(props)
+                session = lux.RenderSession(config)
+                session.Start()
+                i = 0
+                while i < 10:
+                    i += 1
+                    if state.value == RenderState.INTERRUPT.value:
+                        break
+
+                    session.WaitNewFrame()
+
+                    film = session.GetFilm()
+                    # img = GetImagePipelineImage(film)
+                    # img.save("xxxxxx.png")
+                    # self._outputCallback(img)
+
+                    imageBufferFloat = array('f', [0.0] * (film.GetWidth() * film.GetHeight() * 3))
+                    film.GetOutputFloat(lux.FilmOutputType.RGB_IMAGEPIPELINE, imageBufferFloat)
+                    imageBufferUChar = array('B', [max(0, min(255, int(v * 255.0 + 0.5))) for v in imageBufferFloat])
+                    size = (film.GetWidth(), film.GetHeight())
+                    self._outputCallback(imageBufferUChar, size)
+
+                    # data = array('f', [0.0] * (film.GetWidth() * film.GetHeight() * 3))
+                    # film.GetOutputFloat(lux.FilmOutputType.RGB_IMAGEPIPELINE, data)
+                    # print("sending data: " + str(len(data)) + " bytes")
+                    # self._outputCallback(data)
+
                 session.Stop()
+            except RuntimeError as e:
+                print(e)
+                state.value = RenderState.INTERRUPT.value
+        print("Render Thread killed")
+
+    def __init__(self, callback):
+        self._state = Value('i', RenderState.WAITING.value)
+        self._notify = Event()
+        self._renderProcess = None
+        self._outputCallback = callback
+
+    def _updateRenderProcess(self):
+        if not self._renderProcess or not self._renderProcess.is_alive():
+
+            self._renderProcess = Thread(target=self._luxRender,
+                                         args=(self._notify,
+                                               self._state))
+            self._renderProcess.start()
+        if self._state.value == RenderState.WAITING.value:
+            self._notify.set()
+        else:
+            self._state.value = RenderState.INTERRUPT.value
 
 
 class Renderer():
