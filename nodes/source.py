@@ -10,7 +10,7 @@
 ########################################################
 
 
-from ies import parseIesData, blankIesData, spotlightIesData
+from ies import parseIesData, blankIesData, spotlightIesData, noiseIesData
 from ies import FalloffMethod, LightDirection
 
 from nodes import IesNodeData
@@ -25,7 +25,7 @@ from qtpynodeeditor import NodeData, NodeDataModel, PortType
 from qtpy.QtCore import Qt
 
 
-class IesSourceDataModel(NodeDataModel):
+class SourceNode(NodeDataModel):
     name = "IesDefaultSource"
     caption_visible = False
     num_ports = {PortType.input: 0, PortType.output: 1}
@@ -34,19 +34,19 @@ class IesSourceDataModel(NodeDataModel):
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._ies = IesNodeData(blankIesData())
+        self._out = IesNodeData(blankIesData())
 
         self._form = QGroupBox()
         self._layout = QFormLayout()
         self._form.setLayout(self._layout)
-        self._preview = Preview2D(self._ies.data)
+        self._preview = Preview2D(self._out.data)
         self._layout.addRow(self._preview)
 
     def save(self) -> dict:
         # save the state
         doc = super().save()
-        if self._ies:
-            doc['ies'] = self._ies.data
+        if self._out:
+            doc['ies'] = self._out.data
         return doc
 
     def restore(self, state: dict):
@@ -63,22 +63,22 @@ class IesSourceDataModel(NodeDataModel):
         -------
         value : NodeData
         '''
-        return self._ies
+        return self._out
 
     def embedded_widget(self) -> QWidget:
         return self._form
 
     def update(self):
-        self._preview.update(self._ies.data)
+        self._preview.update(self._out.data)
         self.data_updated.emit(0)
 
 
-class IesBlankSourceDataModel(IesSourceDataModel):
+class BlankNode(SourceNode):
     name = "Blank Source"
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._ies = IesNodeData(blankIesData())
+        self._out = IesNodeData(blankIesData())
 
         self._intensitySlider = QSlider(Qt.Horizontal)
         self._layout.addRow(self._intensitySlider)
@@ -90,18 +90,18 @@ class IesBlankSourceDataModel(IesSourceDataModel):
         self.update()
 
     def update(self):
-        self._ies = IesNodeData(blankIesData(
+        self._out = IesNodeData(blankIesData(
                     intensity=self._intensitySlider.value() / 100
         ))
         super().update()
 
 
-class IesSpotlightSourceDataModel(IesSourceDataModel):
+class SpotlightNode(SourceNode):
     name = "Spotlight Source"
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._ies = IesNodeData(spotlightIesData(45, 0.2))
+        self._out = IesNodeData(spotlightIesData(45, 0.2))
 
         self._methodCB = QComboBox()
         self._layout.addRow(self._methodCB)
@@ -132,7 +132,7 @@ class IesSpotlightSourceDataModel(IesSourceDataModel):
         self.update()
 
     def update(self):
-        self._ies = IesNodeData(spotlightIesData(
+        self._out = IesNodeData(spotlightIesData(
                     self._angleSlider.value(),
                     self._falloffSlider.value() / 100.0,
                     falloffMethod=FalloffMethod(self._methodCB.currentText()),
@@ -141,12 +141,12 @@ class IesSpotlightSourceDataModel(IesSourceDataModel):
         super().update()
 
 
-class IesFileSourceDataModel(IesSourceDataModel):
+class FileNode(SourceNode):
     name = "File Source"
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._ies = None
+        self._out = None
 
         self._open_file_button = QPushButton("Open File")
         self._open_file_button.clicked.connect(self.on_file_button)
@@ -155,13 +155,56 @@ class IesFileSourceDataModel(IesSourceDataModel):
     def on_file_button(self):
         dlg = QFileDialog()
         dlg.setAcceptMode(QFileDialog.AcceptOpen)
-        dlg.setFileMode(QFileDialog.AnyFile)
-        # dlg.setFilter(u'IES files (*.ies)')
+        dlg.setFileMode(QFileDialog.ExistingFile)
+        dlg.setNameFilter('IES files (*.ies)')
 
         if dlg.exec_():
             filenames = dlg.selectedFiles()
             f = open(filenames[0], 'r')
             with f:
                 data = f.read()
-                self._ies = IesNodeData(parseIesData(data))
+                self._out = IesNodeData(parseIesData(data))
                 self.update()
+
+
+class NoiseNode(SourceNode):
+    name = "Noise Source"
+
+    def __init__(self, style=None, parent=None):
+        super().__init__(style=style, parent=parent)
+
+        self._latscale = QSlider(Qt.Horizontal)
+        self._layout.addRow(self._latscale)
+        self._latscale.setMinimum(5)
+        self._latscale.setMaximum(100)
+        self._latscale.setValue(20)
+        self._latscale.valueChanged.connect(self.update)
+
+        self._latintensity = QSlider(Qt.Horizontal)
+        self._layout.addRow(self._latintensity)
+        self._latintensity.setMinimum(0)
+        self._latintensity.setMaximum(100)
+        self._latintensity.setValue(20)
+        self._latintensity.valueChanged.connect(self.update)
+
+        # self._longscale = QSlider(Qt.Horizontal)
+        # self._layout.addRow(self._longscale)
+        # self._longscale.setMinimum(1)
+        # self._longscale.setMaximum(360)
+        # self._longscale.setValue(1)
+        # self._longscale.valueChanged.connect(self.update)
+
+        # self._longintensity = QSlider(Qt.Horizontal)
+        # self._layout.addRow(self._longintensity)
+        # self._longintensity.setMinimum(0)
+        # self._longintensity.setMaximum(100)
+        # self._longintensity.setValue(20)
+        # self._longintensity.valueChanged.connect(self.update)
+
+    def update(self):
+        self._out = IesNodeData(noiseIesData(
+                                self._latscale.value(),
+                                self._latintensity.value() / 100,
+                                1,
+                                1))
+        super().update()

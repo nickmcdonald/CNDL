@@ -10,20 +10,19 @@
 ########################################################
 
 
-from ies import MixMethod, normalizeIesData, applyIesDataNoise
+from ies import normalizeIesData
 
 from nodes import IesNodeData
 
 from preview import Preview2D
 
-from qtpy.QtWidgets import QWidget, QGroupBox, QFormLayout, QComboBox, QSlider
-from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QWidget, QGroupBox, QFormLayout
 
 from qtpynodeeditor import NodeDataModel
 from qtpynodeeditor import Port
 
 
-class AlterOperationDataModel(NodeDataModel):
+class AlterNode(NodeDataModel):
     caption_visible = True
     num_ports = {'input': 1, 'output': 1}
     port_caption_visible = True
@@ -78,7 +77,7 @@ class AlterOperationDataModel(NodeDataModel):
         self.data_updated.emit(0)
 
 
-class NormalizeModel(AlterOperationDataModel):
+class NormalizeNode(AlterNode):
     name = "Normalize"
 
     def __init__(self, style=None, parent=None):
@@ -89,55 +88,4 @@ class NormalizeModel(AlterOperationDataModel):
             self._out = IesNodeData(normalizeIesData(self._in.data))
         else:
             self._out = None
-        super().update()
-
-
-class NoiseModel(AlterOperationDataModel):
-    name = "Noise"
-
-    def __init__(self, style=None, parent=None):
-        super().__init__(style=style, parent=parent)
-        self._methodCB = QComboBox()
-        self._layout.addRow(self._methodCB)
-        for method in MixMethod:
-            self._methodCB.addItem(method.value)
-        self._methodCB.currentIndexChanged.connect(self.update)
-
-        self._latscale = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._latscale)
-        self._latscale.setMinimum(0)
-        self._latscale.setMaximum(100)
-        self._latscale.setValue(20)
-        self._latscale.valueChanged.connect(self.update)
-
-        self._latintensity = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._latintensity)
-        self._latintensity.setMinimum(0)
-        self._latintensity.setMaximum(100)
-        self._latintensity.setValue(20)
-        self._latintensity.valueChanged.connect(self.update)
-
-        self._longscale = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._longscale)
-        self._longscale.setMinimum(0)
-        self._longscale.setMaximum(360)
-        self._longscale.setValue(0)
-        self._longscale.valueChanged.connect(self.update)
-
-        self._longintensity = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._longintensity)
-        self._longintensity.setMinimum(0)
-        self._longintensity.setMaximum(100)
-        self._longintensity.setValue(20)
-        self._longintensity.valueChanged.connect(self.update)
-
-    def update(self):
-        if self._in:
-            self._out = IesNodeData(applyIesDataNoise(
-                           self._in.data,
-                           self._latscale.value,
-                           self._latintensity.value,
-                           self._longscale.value,
-                           self._longintensity.value,
-                           MixMethod(self._methodCB.currentText())))
         super().update()

@@ -13,6 +13,7 @@
 from enum import Enum
 
 import math
+import random
 
 from ies import IesData, IesAngle
 
@@ -160,19 +161,32 @@ def normalizeIesData(ies: IesData) -> IesData:
     newIes = IesData()
 
     peak = ies.getPeakBrightness()
-    for angle in ies.angles:
+    for long in ies.getLongAngles():
         points = {}
-        for point in ies.angles[angle].points:
+        for lat in ies.getLatAngles():
             if peak != 0:
-                points[point] = ies.angles[angle].points[point] / peak
+                points[lat] = ies.angles[long].points[lat] / peak
             else:
-                points[point] = 1
-        newIes.addAngle(angle, IesAngle(points=points))
+                points[lat] = 1
+        newIes.addAngle(long, IesAngle(points=points))
     return newIes
 
 
-def applyIesDataNoise(ies, latscale, latintensity, longscale, longintensity,
-                      method=MixMethod.MULTIPLY, mask=None):
+def noiseIesData(latscale: float, latintensity: float,
+                 longscale: float, longintensity: float,
+                 method: MixMethod = MixMethod.MULTIPLY) -> IesData:
+    ies = blankIesData(latRes=latscale, longRes=longscale)
+    latnoise = {}
+    longnoise = {}
+    for lat in ies.getLatAngles():
+        latnoise[lat] = 1-(random.randrange(0, int(latintensity*100), 1)/100)
+    for long in ies.getLongAngles():
+        longnoise[long] = 1-(random.randrange(0, int(latintensity*100), 1)/100)
+
+    for long in ies.getLongAngles():
+        for lat in ies.getLatAngles():
+            ies.angles[long].points[lat] = latnoise[lat] * longnoise[long]
+
     return ies
 
 

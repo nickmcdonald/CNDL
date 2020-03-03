@@ -22,7 +22,7 @@ from qtpynodeeditor import NodeData, NodeDataModel
 from qtpynodeeditor import Port
 
 
-class CombineOperationDataModel(NodeDataModel):
+class CombineNode(NodeDataModel):
     caption_visible = True
     num_ports = {'input': 2, 'output': 1}
     port_caption_visible = True
@@ -81,7 +81,7 @@ class CombineOperationDataModel(NodeDataModel):
         self.data_updated.emit(0)
 
 
-class MixModel(CombineOperationDataModel):
+class MixNode(CombineNode):
     name = "Mix"
 
     def __init__(self, style=None, parent=None):

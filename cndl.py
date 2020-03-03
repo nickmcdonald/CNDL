@@ -16,10 +16,15 @@ from screeninfo import get_monitors
 import qtpynodeeditor as nodeeditor
 from qtpy.QtWidgets import QApplication
 from qtpy.QtGui import QIcon
+from qtpy.QtCore import QPointF
 
-from nodes import IesFileSourceDataModel, IesBlankSourceDataModel
-from nodes import IesSpotlightSourceDataModel
-from nodes import MixModel, IesDisplayModel, NoiseModel, NormalizeModel
+from nodes import (FileNode,
+                   BlankNode,
+                   SpotlightNode,
+                   NoiseNode,
+                   MixNode,
+                   DisplayNode,
+                   NormalizeNode)
 
 import theme.styles as styles
 
@@ -33,13 +38,13 @@ def main(app):
 
     registry = nodeeditor.DataModelRegistry()
 
-    models = (IesFileSourceDataModel,
-              IesBlankSourceDataModel,
-              IesSpotlightSourceDataModel,
-              MixModel,
-              NoiseModel,
-              NormalizeModel,
-              IesDisplayModel)
+    models = (FileNode,
+              BlankNode,
+              SpotlightNode,
+              NoiseNode,
+              MixNode,
+              DisplayNode,
+              NormalizeNode)
 
     for model in models:
         registry.register_model(model, category='Operations', style=style)
@@ -52,6 +57,10 @@ def main(app):
     view.resize(monitor.width - monitor.width / 10,
                 monitor.height - monitor.height / 10)
     view.move(monitor.width / 30, monitor.height / 30)
+
+    displayNode = scene.create_node(DisplayNode)
+    displayNode.position += QPointF(view.geometry().width() / 2,
+                                    view.geometry().height() / 3)
 
     view.show()
 
