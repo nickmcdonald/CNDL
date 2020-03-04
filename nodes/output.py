@@ -19,8 +19,9 @@ from watchdog.events import PatternMatchingEventHandler
 
 from qtpy.QtWidgets import (QWidget, QLabel, QFileDialog, QTabWidget,
                             QPushButton, QGroupBox, QFormLayout, QLineEdit,
-                            QCheckBox)
+                            QCheckBox, QSlider, QSpacerItem)
 from qtpy.QtGui import QPixmap, QDoubleValidator
+from qtpy.QtCore import Qt
 
 from qtpynodeeditor import NodeData, NodeDataModel
 from qtpynodeeditor import PortType, Port
@@ -40,17 +41,21 @@ class DisplayUpdateHandler(PatternMatchingEventHandler):
 
 
 class DisplayNode(NodeDataModel):
-    name = "IESDisplay"
-    data_type = IesNodeData.data_type
+    name = "Output Render Display"
     caption_visible = False
+    port_caption_visible = False
+    data_type = IesNodeData.data_type
     num_ports = {PortType.input: 1, PortType.output: 0}
-    port_caption = {'input': {0: 'Ies'}}
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
         self._ies = None
 
         self._tabs = QTabWidget()
+
+        self._render_form = QGroupBox()
+        self._render_layout = QFormLayout()
+        self._render_form.setLayout(self._render_layout)
 
         self._render_view = QLabel()
         self._render_view.setPixmap(QPixmap('img/RenderPlaceholder.png'))
@@ -60,27 +65,78 @@ class DisplayNode(NodeDataModel):
         observer = Observer()
         observer.schedule(event_handler, os.getcwd(), recursive=True)
         observer.start()
+        self._light_z_pos = QSlider(Qt.Vertical)
+        self._light_z_pos.setMinimum(-60)
+        self._light_z_pos.setMaximum(60)
+        self._light_z_pos.setValue(0)
+        self._light_z_pos.valueChanged.connect(self.update)
+        self._render_layout.addRow(self._render_view, self._light_z_pos)
 
-        self._tabs.addTab(self._render_view, "Render")
+        self._render_controls_form = QGroupBox()
+        self._render_controls_layout = QFormLayout()
+        self._render_controls_form.setLayout(self._render_controls_layout)
+
+        self._light_x_pos = QSlider(Qt.Horizontal)
+        self._light_x_pos.setMinimum(-60)
+        self._light_x_pos.setMaximum(60)
+        self._light_x_pos.setValue(0)
+        self._light_x_pos.valueChanged.connect(self.update)
+        self._render_controls_layout.addRow("Position X", self._light_x_pos)
+
+        self._light_y_pos = QSlider(Qt.Horizontal)
+        self._light_y_pos.setMinimum(-5)
+        self._light_y_pos.setMaximum(60)
+        self._light_y_pos.setValue(0)
+        self._light_y_pos.valueChanged.connect(self.update)
+        self._render_controls_layout.addRow("Position Y", self._light_y_pos)
+
+        self._render_controls_layout.addItem(QSpacerItem(10, 10))
+
+        self._light_x_rot = QSlider(Qt.Horizontal)
+        self._light_x_rot.setMinimum(-180)
+        self._light_x_rot.setMaximum(180)
+        self._light_x_rot.setValue(0)
+        self._light_x_rot.valueChanged.connect(self.update)
+        self._render_controls_layout.addRow("Rotation X", self._light_x_rot)
+
+        self._light_y_rot = QSlider(Qt.Horizontal)
+        self._light_y_rot.setMinimum(-180)
+        self._light_y_rot.setMaximum(180)
+        self._light_y_rot.setValue(0)
+        self._light_y_rot.valueChanged.connect(self.update)
+        self._render_controls_layout.addRow("Rotation Y", self._light_y_rot)
+
+        self._light_z_rot = QSlider(Qt.Horizontal)
+        self._light_z_rot.setMinimum(-180)
+        self._light_z_rot.setMaximum(180)
+        self._light_z_rot.setValue(0)
+        self._light_z_rot.valueChanged.connect(self.update)
+        self._render_controls_layout.addRow("Rotation Z", self._light_z_rot)
+
+        self._render_layout.addRow(self._render_controls_form)
+
+        self._tabs.addTab(self._render_form, "Render")
 
         self._export_form = QGroupBox()
-        self._layout = QFormLayout()
-        self._export_form.setLayout(self._layout)
+        self._export_layout = QFormLayout()
+        self._export_form.setLayout(self._export_layout)
 
         self._brightness_text = QLineEdit()
-        self._brightness_text.setText("80")
+        self._brightness_text.setText("100")
         self._brightness_text.setValidator(QDoubleValidator())
-        self._layout.addRow("Brightness (Candelas)", self._brightness_text)
+        self._export_layout.addRow("Brightness (Candelas)",
+                                   self._brightness_text)
 
         self._export_file_button = QPushButton("Export")
         self._export_file_button.clicked.connect(self.on_file_button)
         self._export_file_button.setEnabled(False)
         self._export_file_text = QLineEdit()
         self._export_file_text.setReadOnly(True)
-        self._layout.addRow(self._export_file_button, self._export_file_text)
+        self._export_layout.addRow(self._export_file_button,
+                                   self._export_file_text)
         self._auto_export = QCheckBox()
         self._auto_export.setChecked(False)
-        self._layout.addRow("Auto Export", self._auto_export)
+        self._export_layout.addRow("Auto Export", self._auto_export)
 
         self._tabs.addTab(self._export_form, "Export")
 
@@ -106,19 +162,32 @@ class DisplayNode(NodeDataModel):
                     f.write(self._ies.data.getIesOutput(float(
                             self._brightness_text.text())))
                 except ValueError:
-                    f.write(self._ies.data.getIesOutput(80))
+                    f.write(self._ies.data.getIesOutput(100))
             f.close()
+
+    def execute_render(self):
+        self._renderer.render(self._ies.data,
+                              position=[self._light_x_pos.value() * -0.09,
+                                        0.5 + self._light_y_pos.value() * 0.09,
+                                        3 + self._light_z_pos.value() * 0.049],
+                              rotation=[self._light_x_rot.value(),
+                                        self._light_y_rot.value(),
+                                        self._light_z_rot.value()],
+                              samples=self._render_passes)
 
     def set_in_data(self, data: NodeData, port: Port):
         '''
         New data propagated to the input
         '''
         self._ies = data
+        self.update()
+
+    def update(self):
         ies_ok = (self._ies is not None and self._ies.data_type.id in ('ies'))
 
         if ies_ok:
             self._export_file_button.setEnabled(True)
-            self._renderer.render(self._ies.data, 1000, self._render_passes)
+            self.execute_render()
             if self._auto_export.isChecked():
                 self.export()
         else:

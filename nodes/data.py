@@ -19,7 +19,7 @@ import threading
 
 class IesNodeData(NodeData):
     'Node data holding Ies data'
-    data_type = NodeDataType("ies", "IES")
+    data_type = NodeDataType("ies", "")
 
     def __init__(self, ies: IesData = None):
         self._ies = ies

@@ -14,9 +14,9 @@ from multiprocessing import Process, Value, Event
 
 from enum import Enum
 
-import pyluxcore as lux
+from scipy.spatial.transform import Rotation
 
-from time import sleep
+import pyluxcore as lux
 
 
 class RenderState(Enum):
@@ -36,7 +36,7 @@ def luxRender(notify, samples, state):
                 break
             notify.clear()
         state.value = RenderState.RENDERING.value
-
+        session = None
         try:
             props = lux.Properties("scenes/basicIES/basicIES.cfg")
             config = lux.RenderConfig(props)
@@ -57,7 +57,6 @@ def luxRender(notify, samples, state):
                     previousPass = currentPass
                 if currentPass >= samples.value or elapsed > 3:
                     break
-                sleep(0.1)
 
             session.Stop()
         except RuntimeError:
@@ -75,10 +74,10 @@ class Renderer():
         self.notify = Event()
         self.renderProcess = None
 
-    def render(self, ies, peakIntensity, samples):
-        f = open("scenes/render.ies", "w")
-        f.write(ies.getIesOutput(peakIntensity))
-        f.close()
+    def render(self, ies, peakintensity=100,
+               position=[0.0, 0.5, 3.0], rotation=[0, 0, 0], samples=2):
+        self.setNewIes(ies, peakintensity)
+        self.setLightTransform(position, rotation)
         if not self.renderProcess or not self.renderProcess.is_alive():
             self.renderProcess = Process(target=luxRender,
                                          args=(self.notify,
@@ -90,3 +89,32 @@ class Renderer():
             self.notify.set()
         else:
             self.state.value = RenderState.INTERRUPT.value
+
+    def setNewIes(self, ies, peakintensity):
+        f = open("scenes/render.ies", "w")
+        f.write(ies.getIesOutput(peakintensity))
+        f.close()
+
+    def setLightTransform(self, position, rotation):
+        fin = open("scenes/basicIES/basicIES.scn.preformat", 'r')
+        preformat = fin.read()
+        fin.close()
+
+        rot = Rotation.from_euler('xyz', rotation, degrees=True).as_matrix()
+
+        trans = "{0:.2f} {1:.2f} {2:.2f} 0.0 {3:.2f} {4:.2f} {5:.2f} 0.0 "
+        trans += "{6:.2f} {7:.2f} {8:.2f} 0.0 {9:.2f} {10:.2f} {11:.2f} 1.0"
+        trans = trans.format(rot[0][0],
+                             rot[0][1],
+                             rot[0][2],
+                             rot[1][0],
+                             rot[1][1],
+                             rot[1][2],
+                             rot[2][0],
+                             rot[2][1],
+                             rot[2][2],
+                             position[0], position[1], position[2])
+
+        fout = open("scenes/basicIES/basicIES.scn", 'w')
+        fout.write(preformat.format(trans))
+        fout.close()

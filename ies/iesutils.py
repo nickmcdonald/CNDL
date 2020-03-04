@@ -94,7 +94,7 @@ def blankIesData(latRes: int = DEFAULT_LAT,
                  longRes=DEFAULT_LONG, intensity=0) -> IesData:
     ies = IesData()
     long = 0.0
-    while long <= 360:
+    while long < 360:
         ies.addAngle(round(long, 2),
                      IesAngle(latRes=latRes, intensity=intensity))
         long += round(360 / longRes, 2)
@@ -174,10 +174,11 @@ def normalizeIesData(ies: IesData) -> IesData:
 
 def noiseIesData(latscale: float, latintensity: float,
                  longscale: float, longintensity: float,
-                 method: MixMethod = MixMethod.MULTIPLY) -> IesData:
+                 seed: int = 0) -> IesData:
     ies = blankIesData(latRes=latscale, longRes=longscale)
     latnoise = {}
     longnoise = {}
+    random.seed = seed
     for lat in ies.getLatAngles():
         latnoise[lat] = 1-(random.randrange(0, int(latintensity*100), 1)/100)
     for long in ies.getLongAngles():

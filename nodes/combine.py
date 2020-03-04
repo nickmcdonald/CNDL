@@ -23,9 +23,8 @@ from qtpynodeeditor import Port
 
 
 class CombineNode(NodeDataModel):
-    caption_visible = True
+    caption_visible = False
     num_ports = {'input': 2, 'output': 1}
-    port_caption_visible = True
     data_type = IesNodeData.data_type
 
     def __init__(self, style=None, parent=None):
@@ -83,6 +82,7 @@ class CombineNode(NodeDataModel):
 
 class MixNode(CombineNode):
     name = "Mix"
+    caption_visible = True
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)

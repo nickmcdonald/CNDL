@@ -17,19 +17,19 @@ from nodes import IesNodeData
 
 from preview import Preview2D
 
-from qtpy.QtWidgets import QWidget, QPushButton, QSlider
-from qtpy.QtWidgets import QFileDialog, QGroupBox, QFormLayout, QComboBox
+from qtpy.QtWidgets import (QWidget, QPushButton, QSlider, QLineEdit,
+                            QFileDialog, QGroupBox, QFormLayout, QComboBox)
 
 from qtpynodeeditor import NodeData, NodeDataModel, PortType
 
 from qtpy.QtCore import Qt
 
+import random
+
 
 class SourceNode(NodeDataModel):
-    name = "IesDefaultSource"
     caption_visible = False
     num_ports = {PortType.input: 0, PortType.output: 1}
-    port_caption = {'output': {0: 'Result'}}
     data_type = IesNodeData.data_type
 
     def __init__(self, style=None, parent=None):
@@ -75,17 +75,18 @@ class SourceNode(NodeDataModel):
 
 class BlankNode(SourceNode):
     name = "Blank Source"
+    caption_visible = True
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
         self._out = IesNodeData(blankIesData())
 
         self._intensitySlider = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._intensitySlider)
         self._intensitySlider.setMinimum(0)
         self._intensitySlider.setMaximum(100)
         self._intensitySlider.setValue(0)
         self._intensitySlider.valueChanged.connect(self.update)
+        self._layout.addRow("Intensity", self._intensitySlider)
 
         self.update()
 
@@ -97,37 +98,38 @@ class BlankNode(SourceNode):
 
 
 class SpotlightNode(SourceNode):
-    name = "Spotlight Source"
+    name = "Spotlight"
+    caption_visible = True
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
         self._out = IesNodeData(spotlightIesData(45, 0.2))
 
         self._methodCB = QComboBox()
-        self._layout.addRow(self._methodCB)
         for method in FalloffMethod:
             self._methodCB.addItem(method.value)
         self._methodCB.currentIndexChanged.connect(self.update)
+        self._layout.addRow("Falloff Method", self._methodCB)
 
         self._dirCB = QComboBox()
-        self._layout.addRow(self._dirCB)
         for direction in LightDirection:
             self._dirCB.addItem(direction.value)
         self._dirCB.currentIndexChanged.connect(self.update)
+        self._layout.addRow("Direction", self._dirCB)
 
         self._angleSlider = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._angleSlider)
         self._angleSlider.setMinimum(0)
         self._angleSlider.setMaximum(90)
         self._angleSlider.setValue(45)
         self._angleSlider.valueChanged.connect(self.update)
+        self._layout.addRow("Angle", self._angleSlider)
 
         self._falloffSlider = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._falloffSlider)
         self._falloffSlider.setMinimum(0)
         self._falloffSlider.setMaximum(100)
         self._falloffSlider.setValue(20)
         self._falloffSlider.valueChanged.connect(self.update)
+        self._layout.addRow("Falloff", self._falloffSlider)
 
         self.update()
 
@@ -142,7 +144,8 @@ class SpotlightNode(SourceNode):
 
 
 class FileNode(SourceNode):
-    name = "File Source"
+    name = "File Input"
+    caption_visible = True
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
@@ -150,7 +153,9 @@ class FileNode(SourceNode):
 
         self._open_file_button = QPushButton("Open File")
         self._open_file_button.clicked.connect(self.on_file_button)
-        self._layout.addRow("Select File", self._open_file_button)
+        self._open_file_text = QLineEdit()
+        self._open_file_text.setReadOnly(True)
+        self._layout.addRow(self._open_file_button, self._open_file_text)
 
     def on_file_button(self):
         dlg = QFileDialog()
@@ -160,6 +165,7 @@ class FileNode(SourceNode):
 
         if dlg.exec_():
             filenames = dlg.selectedFiles()
+            self._open_file_text.setText(filenames[0])
             f = open(filenames[0], 'r')
             with f:
                 data = f.read()
@@ -168,43 +174,42 @@ class FileNode(SourceNode):
 
 
 class NoiseNode(SourceNode):
-    name = "Noise Source"
+    name = "Noise"
+    caption_visible = True
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
 
         self._latscale = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._latscale)
         self._latscale.setMinimum(5)
         self._latscale.setMaximum(100)
-        self._latscale.setValue(20)
+        self._latscale.setValue(30)
         self._latscale.valueChanged.connect(self.update)
+        self._layout.addRow("Scale", self._latscale)
 
         self._latintensity = QSlider(Qt.Horizontal)
-        self._layout.addRow(self._latintensity)
         self._latintensity.setMinimum(0)
         self._latintensity.setMaximum(100)
-        self._latintensity.setValue(20)
+        self._latintensity.setValue(30)
         self._latintensity.valueChanged.connect(self.update)
+        self._layout.addRow("Intensity", self._latintensity)
 
-        # self._longscale = QSlider(Qt.Horizontal)
-        # self._layout.addRow(self._longscale)
-        # self._longscale.setMinimum(1)
-        # self._longscale.setMaximum(360)
-        # self._longscale.setValue(1)
-        # self._longscale.valueChanged.connect(self.update)
+        self._seed = 0
+        self._seed_button = QPushButton("Random Seed")
+        self._seed_button.clicked.connect(self.on_seed_button)
+        self._layout.addRow(self._seed_button)
 
-        # self._longintensity = QSlider(Qt.Horizontal)
-        # self._layout.addRow(self._longintensity)
-        # self._longintensity.setMinimum(0)
-        # self._longintensity.setMaximum(100)
-        # self._longintensity.setValue(20)
-        # self._longintensity.valueChanged.connect(self.update)
+        self.update()
+
+    def on_seed_button(self):
+        self.seed = random.randrange(0, 1000, 1)
+        self.update()
 
     def update(self):
         self._out = IesNodeData(noiseIesData(
                                 self._latscale.value(),
                                 self._latintensity.value() / 100,
                                 1,
-                                1))
+                                1,
+                                seed=self._seed))
         super().update()

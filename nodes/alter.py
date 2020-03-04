@@ -23,9 +23,8 @@ from qtpynodeeditor import Port
 
 
 class AlterNode(NodeDataModel):
-    caption_visible = True
+    caption_visible = False
     num_ports = {'input': 1, 'output': 1}
-    port_caption_visible = True
     data_type = IesNodeData.data_type
 
     def __init__(self, style=None, parent=None):
@@ -79,6 +78,7 @@ class AlterNode(NodeDataModel):
 
 class NormalizeNode(AlterNode):
     name = "Normalize"
+    caption_visible = True
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
