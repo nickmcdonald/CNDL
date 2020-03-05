@@ -26,16 +26,30 @@ from nodes import (FileNode,
                    DisplayNode,
                    NormalizeNode)
 
-import theme.styles as styles
-
 from multiprocessing import freeze_support
 
 freeze_support()
 
 
-def main(app):
-    style = nodeeditor.StyleCollection.from_json(styles.DEFAULT)
+def processStyle(style: str) -> str:
+    style = style.replace("NODECOLOR", "#505050")
+    style = style.replace("THEMECOLORHARD", "#f4ac62")
+    style = style.replace("THEMECOLORMAIN", "#f4cba1")
+    style = style.replace("THEMECOLORSOFT", "#f4e0cb")
+    style = style.replace("SOLIDBACKGROUNDCOLOR", "#555555")
+    style = style.replace("TEXTCOLORMAIN", "#C0C0C0")
+    style = style.replace("TEXTCOLORDARK", "#808080")
+    style = style.replace("ALTBACKGROUNDCOLOR", "#323232")
+    style = style.replace("DISABLEDTEXTCOLOR", "#787878")
+    style = style.replace("BORDERCOLOR", "#FF0000")
+    return style
 
+
+def main(app):
+    f = open("ui/editortheme.json", 'r')
+    stylesheet = f.read()
+    f.close()
+    style = nodeeditor.StyleCollection.from_json(processStyle(stylesheet))
     registry = nodeeditor.DataModelRegistry()
 
     models = (FileNode,
@@ -70,7 +84,14 @@ def main(app):
 if __name__ == '__main__':
     log.basicConfig(level='DEBUG')
     app = QApplication([])
-    app.setWindowIcon(QIcon('img/LogoBold.png'))
+    app.setWindowIcon(QIcon('img/CNDL.ico'))
+
+    f = open("ui/theme.qss", 'r')
+    stylesheet = f.read()
+    f.close()
+
+    app.setStyleSheet(processStyle(stylesheet))
+
     scene, view = main(app)
     view.show()
     app.exec_()

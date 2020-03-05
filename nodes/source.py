@@ -34,7 +34,7 @@ class SourceNode(NodeDataModel):
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._out = IesNodeData(blankIesData())
+        self._out = IesNodeData(None)
 
         self._form = QGroupBox()
         self._layout = QFormLayout()
@@ -79,7 +79,7 @@ class BlankNode(SourceNode):
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._out = IesNodeData(blankIesData())
+        self._out = None
 
         self._intensitySlider = QSlider(Qt.Horizontal)
         self._intensitySlider.setMinimum(0)
@@ -103,7 +103,7 @@ class SpotlightNode(SourceNode):
 
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
-        self._out = IesNodeData(spotlightIesData(45, 0.2))
+        self._out = None
 
         self._methodCB = QComboBox()
         for method in FalloffMethod:

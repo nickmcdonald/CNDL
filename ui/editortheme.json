@@ -1,0 +1,42 @@
+{
+  "FlowViewStyle": {
+    "BackgroundColor": [53, 53, 53],
+    "FineGridColor": [60, 60, 60],
+    "CoarseGridColor": [25, 25, 25]
+  },
+  "NodeStyle": {
+    "NormalBoundaryColor": [255, 255, 255],
+    "SelectedBoundaryColor": "THEMECOLORHARD",
+    "GradientColor0": "NODECOLOR",
+    "GradientColor1": "NODECOLOR",
+    "GradientColor2": "NODECOLOR",
+    "GradientColor3": "NODECOLOR",
+    "ShadowColor": [20, 20, 20],
+    "FontColor": "TEXTCOLORMAIN",
+    "FontColorFaded": "TEXTCOLORMAIN",
+    "ConnectionPointColor": "THEMECOLORMAIN",
+    "FilledConnectionPointColor": "THEMECOLORHARD",
+    "ErrorColor": "red",
+    "WarningColor": [128, 128, 0],
+
+    "PenWidth": 1.0,
+    "HoveredPenWidth": 1.5,
+
+    "ConnectionPointDiameter": 12.0,
+
+    "Opacity": 1
+  },
+  "ConnectionStyle": {
+    "ConstructionColor": "gray",
+    "NormalColor": "THEMECOLORMAIN",
+    "SelectedColor": [100, 100, 100],
+    "SelectedHaloColor": "THEMECOLORHARD",
+    "HoveredColor": "THEMECOLORSOFT",
+
+    "LineWidth": 3.0,
+    "ConstructionLineWidth": 2.0,
+    "PointDiameter": 10.0,
+
+    "UseDataDefinedColors": false
+  }
+}

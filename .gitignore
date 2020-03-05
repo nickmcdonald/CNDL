@@ -8,7 +8,7 @@ __pycache__/
 *.blend2
 *.blend3
 
-render/img/*
+img/render/*
 scenes/render.ies
 
 # C extensions

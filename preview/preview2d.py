@@ -37,6 +37,7 @@ class Preview2D(QWidget):
         brush = QBrush(Qt.SolidPattern)
         canvas = QRect(0, 0, 256, 256)
         painter.setBrush(brush)
+        painter.setPen(QColor(0.0, 0.0, 0.0))
         painter.drawPie(canvas, 0, 360 * 16)
 
         if self._ies is None:

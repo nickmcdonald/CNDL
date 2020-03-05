@@ -1,0 +1,567 @@
+
+QWidget {
+  background-color: rgba( 255, 255, 255, 0% );
+  border: 0px solid;
+  padding: 0px;
+  color: TEXTCOLORMAIN;
+  selection-background-color: THEMECOLORMAIN;
+  selection-color: TEXTCOLORMAIN;
+}
+
+QWidget:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+  selection-background-color: BORDERCOLOR;
+  selection-color: TEXTCOLORDARK;
+}
+
+QWidget::item:selected {
+  background-color: THEMECOLORMAIN;
+}
+
+QWidget::item:hover {
+  background-color: THEMECOLORSOFT;
+  color: ALTBACKGROUNDCOLOR;
+}
+
+QToolTip {
+  background-color: THEMECOLORSOFT;
+  border: 1px solid THEMECOLORMAIN;
+  color: TEXTCOLORMAIN;
+  padding: 0px;
+}
+
+QCheckBox {
+  background-color: rgba( 255, 255, 255, 0% );
+  color: TEXTCOLORMAIN;
+  spacing: 4px;
+  outline: none;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+QCheckBox:focus {
+  border: none;
+}
+
+QCheckBox QWidget:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+}
+
+QCheckBox::indicator {
+  margin-left: 4px;
+  height: 16px;
+  width: 16px;
+}
+
+QGroupBox {
+  font-weight: bold;
+  border: 0px solid;
+  border-radius: 4px;
+  padding: 4px;
+  margin-top: 16px;
+}
+
+QGroupBox::title {
+  subcontrol-origin: margin;
+  subcontrol-position: top left;
+  left: 3px;
+  padding-left: 3px;
+  padding-right: 5px;
+  padding-top: 8px;
+  padding-bottom: 16px;
+}
+
+QGroupBox::indicator {
+  margin-left: 2px;
+  height: 12px;
+  width: 12px;
+}
+
+QLabel {
+  background-color: rgba( 255, 255, 255, 0% );;
+  border: 0px solid;
+  padding: 2px;
+  margin: 0px;
+  color: TEXTCOLORMAIN;
+}
+
+QLabel:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 0px solid;
+  color: TEXTCOLORDARK;
+}
+
+QGraphicsView {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 1px solid;
+  color: TEXTCOLORMAIN;
+  border-radius: 4px;
+}
+
+QGraphicsView:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 1px solid;
+  color: TEXTCOLORDARK;
+  border-radius: 4px;
+}
+
+QGraphicsView:hover, QGraphicsView:!hover, QGraphicsView:selected, QGraphicsView:pressed {
+  border: 1px solid;
+}
+
+QPushButton {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 1px solid;
+  color: TEXTCOLORMAIN;
+  border-radius: 4px;
+  padding: 4px;
+  outline: none;
+  min-width: 80px;
+}
+
+QPushButton:disabled {
+  background-color: ALTBACKGROUNDCOLOR;
+  border: 1px solid;
+  color: TEXTCOLORDARK;
+  border-radius: 4px;
+}
+
+QPushButton:checked {
+  background-color: ALTBACKGROUNDCOLOR;
+  border: 1px solid;
+  border-radius: 4px;
+  outline: none;
+}
+
+QPushButton:checked:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 1px solid;
+  color: TEXTCOLORDARK;
+  border-radius: 4px;
+  outline: none;
+}
+
+QPushButton:checked:selected {
+  background: THEMECOLORMAIN;
+  color: ALTBACKGROUNDCOLOR;
+}
+
+QPushButton::menu-indicator {
+  subcontrol-origin: padding;
+  subcontrol-position: bottom right;
+  bottom: 4px;
+}
+
+QPushButton:pressed {
+  background-color: ALTBACKGROUNDCOLOR;
+  border: 1px solid ALTBACKGROUNDCOLOR;
+}
+
+QPushButton:pressed:hover {
+  border: 1px solid ALTBACKGROUNDCOLOR;
+}
+
+QPushButton:hover {
+  border: 1px solid THEMECOLORSOFT;
+  color: TEXTCOLORMAIN;
+}
+
+QPushButton:selected {
+  background: THEMECOLORMAIN;
+  color: ALTBACKGROUNDCOLOR;
+}
+
+QPushButton:focus {
+  border: 1px solid THEMECOLORMAIN;
+}
+
+QComboBox {
+  border: 1px solid;
+  border-radius: 4px;
+  background-color: SOLIDBACKGROUNDCOLOR;
+  selection-background-color: THEMECOLORSOFT;
+  padding-left: 4px;
+  padding-right: 36px;
+  min-height: 1.5em;
+  color: TEXTCOLORMAIN;
+}
+
+QComboBox QAbstractItemView {
+  border: 1px solid;
+  border-radius: 0;
+  background-color: SOLIDBACKGROUNDCOLOR;
+  selection-background-color: THEMECOLORSOFT;
+  selection-color: TEXTCOLORDARK;
+}
+
+QComboBox QAbstractItemView:hover {
+  background-color: SOLIDBACKGROUNDCOLOR;
+}
+
+QComboBox QAbstractItemView:selected {
+  background: THEMECOLORSOFT;
+}
+
+QComboBox QAbstractItemView:alternate {
+  background: SOLIDBACKGROUNDCOLOR;
+}
+
+QComboBox:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+}
+
+QComboBox:hover {
+  border: 1px solid THEMECOLORSOFT;
+}
+
+QComboBox:focus {
+  border: 1px solid THEMECOLORSOFT;
+}
+
+QComboBox:on {
+  selection-background-color: THEMECOLORSOFT;
+}
+
+QComboBox::indicator {
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  selection-background-color: transparent;
+  color: transparent;
+  selection-color: transparent;
+}
+
+QComboBox::indicator:alternate {
+  background: ALTBACKGROUNDCOLOR;
+}
+
+QComboBox::item:alternate {
+  background: ALTBACKGROUNDCOLOR;
+}
+
+QComboBox::item:checked {
+  font-weight: bold;
+}
+
+QComboBox::item:selected {
+  border: 0px solid transparent;
+}
+
+QComboBox::drop-down {
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  width: 12px;
+  border-left: 0px solid;
+}
+
+QSlider:disabled {
+  background: SOLIDBACKGROUNDCOLOR;
+}
+
+QSlider:focus {
+  border: none;
+}
+
+QSlider::groove:horizontal {
+  background: THEMECOLORMAIN;
+  border: 1px solid;
+  height: 4px;
+  margin: 0px;
+  border-radius: 4px;
+}
+
+QSlider::groove:vertical {
+  background: THEMECOLORMAIN;
+  border: 1px solid;
+  width: 4px;
+  margin: 0px;
+  border-radius: 4px;
+}
+
+QSlider::add-page:vertical {
+  background: THEMECOLORMAIN;
+  border: 1px solid;
+  width: 4px;
+  margin: 0px;
+  border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+  background: THEMECOLORMAIN;
+  border: 1px solid;
+  height: 4px;
+  margin: 0px;
+  border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+  background: THEMECOLORHARD;
+  border: 1px solid;
+  width: 8px;
+  height: 8px;
+  margin: -8px 0px;
+  border-radius: 4px;
+}
+
+QSlider::handle:horizontal:hover {
+  background: THEMECOLORSOFT;
+  border: 1px solid THEMECOLORSOFT;
+}
+
+QSlider::handle:horizontal:focus {
+  border: 1px solid THEMECOLORMAIN;
+}
+
+QSlider::handle:vertical {
+  background: THEMECOLORHARD;
+  border: 1px solid;
+  width: 8px;
+  height: 8px;
+  margin: 0 -8px;
+  border-radius: 4px;
+}
+
+QSlider::handle:vertical:hover {
+  background: THEMECOLORHARD;
+  border: 1px solid THEMECOLORHARD;
+}
+
+QSlider::handle:vertical:focus {
+  border: 1px solid THEMECOLORHARD;
+}
+
+QLineEdit {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-style: solid;
+  border: 1px solid;
+  border-radius: 4px;
+  color: TEXTCOLORMAIN;
+}
+
+QLineEdit:disabled {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+}
+
+QLineEdit:hover {
+  border: 1px solid THEMECOLORSOFT;
+  color: TEXTCOLORMAIN;
+}
+
+QLineEdit:focus {
+  border: 1px solid THEMECOLORMAIN;
+}
+
+QLineEdit:selected {
+  background-color: THEMECOLORMAIN;
+  color: ALTBACKGROUNDCOLOR;
+}
+
+QTabWidget {
+  padding: 2px;
+  selection-background-color: ALTBACKGROUNDCOLOR;
+}
+
+QTabWidget QWidget {
+  border-radius: 4px;
+}
+
+QTabWidget::pane {
+  border: 0px solid;
+  border-radius: 4px;
+  margin: 0px;
+  padding: 0px;
+}
+
+QTabWidget::pane:selected {
+  background-color: ALTBACKGROUNDCOLOR;
+  border: 1px solid THEMECOLORMAIN;
+}
+
+QTabBar {
+  qproperty-drawBase: 0;
+  border-radius: 4px;
+  margin: 0px;
+  padding: 2px;
+  border: 1;
+}
+
+QTabBar::tab:top:!selected:disabled {
+  border-bottom: 3px solid SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+  background-color: SOLIDBACKGROUNDCOLOR;
+}
+
+QTabBar::tab:bottom:!selected:disabled {
+  border-top: 3px solid SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+  background-color: SOLIDBACKGROUNDCOLOR;
+}
+
+QTabBar::tab:left:!selected:disabled {
+  border-right: 3px solid SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+  background-color: SOLIDBACKGROUNDCOLOR;
+}
+
+QTabBar::tab:right:!selected:disabled {
+  border-left: 3px solid SOLIDBACKGROUNDCOLOR;
+  color: TEXTCOLORDARK;
+  background-color: SOLIDBACKGROUNDCOLOR;
+}
+
+QTabBar::tab:top:!selected {
+  border-bottom: 2px solid SOLIDBACKGROUNDCOLOR;
+  margin-top: 2px;
+}
+
+QTabBar::tab:bottom:!selected {
+  border-top: 2px solid SOLIDBACKGROUNDCOLOR;
+  margin-bottom: 3px;
+}
+
+QTabBar::tab:left:!selected {
+  border-left: 2px solid SOLIDBACKGROUNDCOLOR;
+  margin-right: 2px;
+}
+
+QTabBar::tab:right:!selected {
+  border-right: 2px solid SOLIDBACKGROUNDCOLOR;
+  margin-left: 2px;
+}
+
+QTabBar::tab:top {
+  background-color: ALTBACKGROUNDCOLOR;
+  color: TEXTCOLORMAIN;
+  margin-left: 2px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  min-width: 5px;
+  border-bottom: 3px solid;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+QTabBar::tab:top:selected {
+  background-color: ALTBACKGROUNDCOLOR;
+  color: TEXTCOLORMAIN;
+  border-bottom: 4px solid THEMECOLORMAIN;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+QTabBar::tab:top:!selected:hover {
+  border: 1px solid THEMECOLORSOFT;
+  border-bottom: 3px solid THEMECOLORSOFT;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+QTabBar::tab:bottom {
+  color: TEXTCOLORMAIN;
+  border-top: 3px solid;
+  background-color: ALTBACKGROUNDCOLOR;
+  margin-left: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  min-width: 5px;
+}
+
+QTabBar::tab:bottom:selected {
+  color: TEXTCOLORMAIN;
+  background-color: ALTBACKGROUNDCOLOR;
+  border-top: 3px solid THEMECOLORMAIN;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+QTabBar::tab:bottom:!selected:hover {
+  border: 1px solid THEMECOLORSOFT;
+  border-top: 3px solid THEMECOLORSOFT;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+QTabBar::tab:left {
+  color: TEXTCOLORMAIN;
+  background-color: ALTBACKGROUNDCOLOR;
+  margin-top: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  min-height: 5px;
+}
+
+QTabBar::tab:left:selected {
+  color: TEXTCOLORMAIN;
+  background-color: ALTBACKGROUNDCOLOR;
+  border-right: 3px solid THEMECOLORMAIN;
+}
+
+QTabBar::tab:left:!selected:hover {
+  border: 1px solid THEMECOLORSOFT;
+  border-right: 3px solid THEMECOLORSOFT;
+  padding: 0px;
+}
+
+QTabBar::tab:right {
+  color: TEXTCOLORMAIN;
+  background-color: ALTBACKGROUNDCOLOR;
+  margin-top: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  min-height: 5px;
+}
+
+QTabBar::tab:right:selected {
+  color: TEXTCOLORMAIN;
+  background-color: ALTBACKGROUNDCOLOR;
+  border-left: 3px solid THEMECOLORMAIN;
+}
+
+QTabBar::tab:right:!selected:hover {
+  border: 1px solid THEMECOLORSOFT;
+  border-left: 3px solid THEMECOLORSOFT;
+  padding: 0px;
+}
+
+.QFrame {
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.QFrame[frameShape="0"] {
+  border-radius: 4px;
+  border: 1px transparent ALTBACKGROUNDCOLOR;
+}
+
+.QFrame[frameShape="4"] {
+  max-height: 2px;
+  border: none;
+  background-color: ALTBACKGROUNDCOLOR;
+}
+
+.QFrame[frameShape="5"] {
+  max-width: 2px;
+  border: none;
+  background-color: ALTBACKGROUNDCOLOR;
+}

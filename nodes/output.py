@@ -32,7 +32,7 @@ from nodes import IesNodeData
 class DisplayUpdateHandler(PatternMatchingEventHandler):
 
     def __init__(self, update_method):
-        super().__init__(patterns=["*/render/img/image.png"])
+        super().__init__(patterns=["*/img/render/renderimage.png"])
 
         self.update = update_method
 
@@ -195,7 +195,7 @@ class DisplayNode(NodeDataModel):
             self._render_view.setPixmap(QPixmap('img/RenderPlaceholder.png'))
 
     def update_image(self):
-        self._render_view.setPixmap(QPixmap('render/img/image.png'))
+        self._render_view.setPixmap(QPixmap('img/render/renderimage.png'))
 
     def embedded_widget(self) -> QWidget:
         return self._tabs
