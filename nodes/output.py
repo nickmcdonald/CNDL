@@ -68,7 +68,7 @@ class DisplayNode(NodeDataModel):
         self._light_z_pos = QSlider(Qt.Vertical)
         self._light_z_pos.setMinimum(-60)
         self._light_z_pos.setMaximum(60)
-        self._light_z_pos.setValue(0)
+        self._light_z_pos.setValue(30)
         self._light_z_pos.valueChanged.connect(self.update)
         self._render_layout.addRow(self._render_view, self._light_z_pos)
 

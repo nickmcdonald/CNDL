@@ -1,0 +1,85 @@
+---
+title: Download
+heading: Pay what you can afford, When you can afford it.
+description: CNDL is developed by a small, independant team of <strong>1</strong> people. Your contribution will go towards the development of CNDL, and future projects. Our goal is to develop a suite of niche tools and products like CNDL to solve problems and increase the productivity of Game Developers and 3D Artists.<br/><br/>You can support us on patreon to get access to our private discord server and get developer support.
+pricing_table:
+  - name: Supporter
+    color: "#323232"
+    features:
+      - text: $5 per month
+        highlight: false
+      - text: Patron-only posts and messages
+        highlight: false
+      - text: Access to user discord server<br/>
+        highlight: false
+    call_to_action:
+      link: #
+      text: Get started
+  - name: Professional
+    color: "#323232"
+    features:
+      - text: $20 per month
+        highlight: true
+      - text: Access to developer support
+        highlight: false
+      - text: Priority feature requests / suggestions
+        highlight: false
+      - text: And everything in the previous tiers
+        highlight: false
+    call_to_action:
+      link: #
+      text: Get started
+  - name: Sponsor
+    color: "#323232"
+    features:
+      - text: $200 per month
+        highlight: true
+      - text: Priority support and bug fixes
+        highlight: false
+      - text: Recognition as a sponsor on Patreon and product websites
+        highlight: false
+      - text: And everything in the previous tiers
+        highlight: false
+    call_to_action:
+      link: #
+      text: Get started
+faq:
+  - question: Do I have to pay for CNDL to use it commercially?
+    answer: No. It is totally free to use, for any purpose. Our philosophy is that we should <strong>earn</strong> your money by making a product that you <strong>want to support</strong>
+  - question: What if I don't want to pay?
+    answer: Don't worry about it. Enjoy the software and remember that you can support us at any time. Or consider telling a friend about CNDL to help grow our user base.<br/><a href="#">Click here to download CNDL for free</a>
+  - question: Is CNDL open source?
+    answer: Not at the moment, but that may change. CNDL is still early in its development cycle, and it's our first project of this kind. We plan to open source it eventually if this business model is effective.
+  - question: I don't want a patreon subscription, can I support CNDL another way?
+    answer: Absolutely, you can donate any amount directly via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8SFL6DVAVMJ8Q">paypal</a>.
+  - question: Questions?
+    answer: Contact us for any further questions at <a href="mailto:nick@lazymorninggames.com"?subject="CNDL Question">nick@lazymorninggames.com</a>
+---
+<div class="plans">
+	{% for plan in page.pricing_table %}
+		<ul class="plan">
+			<li style="background: {{ plan.color }}">
+				<h3>{{ plan.name }}</h3>
+			</li>
+			{% for feature in plan.features %}
+				<li {% if feature.highlight %} class="highlighted"{% endif %}>{{ feature.text }}</li>
+			{% endfor %}
+
+			{% if plan.call_to_action %}
+				<li class="pricing-cta"><div class="button"><a style="background: {{ plan.color }}" href="{{ plan.call_to_action.link }}">{{ plan.call_to_action.text }} &rarr;</a></div></li>
+			{% endif %}
+		</ul>
+	{% endfor %}
+</div>
+
+{% if page.faq %}
+	<h2>Pricing FAQ</h2>
+	<dl class="faq">
+		{% for item in page.faq %}
+			<div>
+				<dt>{{ item.question }}</dt>
+				<dd>{{ item.answer }}</dd>
+			</div>
+		{% endfor %}
+	</dl>
+{% endif %}

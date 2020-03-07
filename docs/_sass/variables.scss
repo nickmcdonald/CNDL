@@ -1,0 +1,12 @@
+$background-color-hard: #323232;
+$background-color-main: #555555;
+$background-color-soft: #aaaaaa;
+$brand-color-hard: #f4ac62;
+$brand-color-main: #f4cba1;
+$brand-color-soft: #f4e0cb;
+$middle-gradient-color: mix($background-color-hard, $background-color-main, 95%);
+
+// Breakpoints
+$tablet: "(min-width: 450px)";
+$mid-point: "(min-width: 620px)";
+$desktop: "(min-width: 768px)";

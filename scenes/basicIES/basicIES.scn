@@ -19,7 +19,7 @@ scene.objects.floor.material = whitematte
 #scene.objects.flatlights.material = flatlights
 ###########################################################################
 scene.lights.previewIES.type = "mappoint"
-scene.lights.previewIES.transformation = 1.00 0.00 0.00 0.0 0.00 1.00 0.00 0.0 0.00 0.00 1.00 0.0 1.80 0.50 3.00 1.0
+scene.lights.previewIES.transformation = 1.00 0.00 0.00 0.0 0.00 -0.09 -1.00 0.0 0.00 1.00 -0.09 0.0 -0.00 5.90 2.31 1.0
 scene.lights.previewIES.iesfile = scenes/render.ies
 scene.lights.previewIES.samples = 1
 scene.lights.previewIES.flipz = 1
