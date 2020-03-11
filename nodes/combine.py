@@ -102,3 +102,6 @@ class MixNode(CombineNode):
         else:
             self._out = None
         super().update()
+
+    def setMixMethod(self, method: MixMethod):
+        self._methodCB.setCurrentText(method.value)

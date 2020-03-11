@@ -140,6 +140,24 @@ class DisplayNode(NodeDataModel):
 
         self._tabs.addTab(self._export_form, "Export")
 
+    def setLightPositionX(self, val):
+        self._light_x_pos.setValue(val)
+
+    def setLightPositionY(self, val):
+        self._light_y_pos.setValue(val)
+
+    def setLightPositionZ(self, val):
+        self._light_z_pos.setValue(val)
+
+    def setLightRotationX(self, val):
+        self._light_x_rot.setValue(val)
+
+    def setLightRotationY(self, val):
+        self._light_y_rot.setValue(val)
+
+    def setLightRotationZ(self, val):
+        self._light_z_rot.setValue(val)
+
     def on_file_button(self):
         dlg = QFileDialog()
         dlg.setAcceptMode(QFileDialog.AcceptSave)

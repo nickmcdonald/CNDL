@@ -14,17 +14,19 @@ import logging as log
 from screeninfo import get_monitors
 
 import qtpynodeeditor as nodeeditor
-from qtpy.QtWidgets import QApplication
+from qtpy.QtWidgets import (QApplication)
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import QPointF
 
 from nodes import (FileNode,
-                   BlankNode,
+                   PointlightNode,
                    SpotlightNode,
                    NoiseNode,
                    MixNode,
                    DisplayNode,
                    NormalizeNode)
+
+from menu import CNDLSplashScreen
 
 from multiprocessing import freeze_support
 
@@ -45,53 +47,55 @@ def processStyle(style: str) -> str:
     return style
 
 
-def main(app):
-    f = open("ui/editortheme.json", 'r')
-    stylesheet = f.read()
-    f.close()
-    style = nodeeditor.StyleCollection.from_json(processStyle(stylesheet))
-    registry = nodeeditor.DataModelRegistry()
+class CNDL(QApplication):
 
-    models = (FileNode,
-              BlankNode,
-              SpotlightNode,
-              NoiseNode,
-              MixNode,
-              DisplayNode,
-              NormalizeNode)
+    def __init__(self):
+        super().__init__([])
+        self.setWindowIcon(QIcon('img/CNDL.ico'))
 
-    for model in models:
-        registry.register_model(model, category='Operations', style=style)
+        f = open("ui/theme.qss", 'r')
+        style = f.read()
+        f.close()
 
-    scene = nodeeditor.FlowScene(registry=registry, style=style)
+        self.setStyleSheet(processStyle(style))
 
-    view = nodeeditor.FlowView(scene)
-    view.setWindowTitle("CNDL")
-    monitor = get_monitors()[0]
-    view.resize(monitor.width - monitor.width / 10,
-                monitor.height - monitor.height / 10)
-    view.move(monitor.width / 30, monitor.height / 30)
+        f = open("ui/editortheme.json", 'r')
+        style = f.read()
+        f.close()
+        style = nodeeditor.StyleCollection.from_json(processStyle(style))
 
-    displayNode = scene.create_node(DisplayNode)
-    displayNode.position += QPointF(view.geometry().width() / 2,
-                                    view.geometry().height() / 3)
+        registry = nodeeditor.DataModelRegistry()
+        models = (FileNode,
+                  PointlightNode,
+                  SpotlightNode,
+                  NoiseNode)
+        for model in models:
+            registry.register_model(model, category='Inputs', style=style)
 
-    view.show()
+        models = (MixNode, NormalizeNode)
+        for model in models:
+            registry.register_model(model, category='Operations', style=style)
 
-    return scene, view
+        registry.register_model(DisplayNode, category='Outputs', style=style)
+
+        self.scene = nodeeditor.FlowScene(registry=registry, style=style)
+
+        self.view = nodeeditor.FlowView(self.scene)
+        self.view.setWindowTitle("CNDL")
+        monitor = get_monitors()[0]
+        self.view.resize(monitor.width - monitor.width / 10,
+                         monitor.height - monitor.height / 10)
+        self.view.move(monitor.width / 30, monitor.height / 30)
+
+        displayNode = self.scene.create_node(DisplayNode)
+        displayNode.position += QPointF(self.view.geometry().width() / 2,
+                                        self.view.geometry().height() / 3)
+
+        self.view.show()
+        CNDLSplashScreen(self.view, self.scene).show()
 
 
 if __name__ == '__main__':
     log.basicConfig(level='DEBUG')
-    app = QApplication([])
-    app.setWindowIcon(QIcon('img/CNDL.ico'))
-
-    f = open("ui/theme.qss", 'r')
-    stylesheet = f.read()
-    f.close()
-
-    app.setStyleSheet(processStyle(stylesheet))
-
-    scene, view = main(app)
-    view.show()
+    app = CNDL()
     app.exec_()

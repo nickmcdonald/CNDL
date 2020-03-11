@@ -73,8 +73,8 @@ class SourceNode(NodeDataModel):
         self.data_updated.emit(0)
 
 
-class BlankNode(SourceNode):
-    name = "Blank Source"
+class PointlightNode(SourceNode):
+    name = "Pointlight"
     caption_visible = True
 
     def __init__(self, style=None, parent=None):
@@ -84,7 +84,7 @@ class BlankNode(SourceNode):
         self._intensitySlider = QSlider(Qt.Horizontal)
         self._intensitySlider.setMinimum(0)
         self._intensitySlider.setMaximum(100)
-        self._intensitySlider.setValue(0)
+        self._intensitySlider.setValue(100)
         self._intensitySlider.valueChanged.connect(self.update)
         self._layout.addRow("Intensity", self._intensitySlider)
 
@@ -95,6 +95,9 @@ class BlankNode(SourceNode):
                     intensity=self._intensitySlider.value() / 100
         ))
         super().update()
+
+    def setIntensity(self, intensity: int):
+        self._intensitySlider.setValue(intensity)
 
 
 class SpotlightNode(SourceNode):
@@ -141,6 +144,18 @@ class SpotlightNode(SourceNode):
                     lightDirection=LightDirection(self._dirCB.currentText())
         ))
         super().update()
+
+    def setAngle(self, angle: int):
+        self._angleSlider.setValue(angle)
+
+    def setFalloff(self, falloff: int):
+        self._falloffSlider.setValue(falloff)
+
+    def setFalloffMethod(self, method: FalloffMethod):
+        self._methodCB.setCurrentText(method.value)
+
+    def setLightDiretion(self, direction: LightDirection):
+        self._dirCB.setCurrentText(direction.value)
 
 
 class FileNode(SourceNode):
