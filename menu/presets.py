@@ -17,19 +17,18 @@ from qtpy.QtCore import QPointF
 
 from ies import MixMethod, LightDirection
 
-from nodes import (FileNode,
-                   PointlightNode,
+from nodes import (PointlightNode,
                    SpotlightNode,
                    NoiseNode,
                    MixNode,
-                   DisplayNode,
-                   NormalizeNode)
+                   DisplayNode)
 
 
 class Preset(Enum):
     EMPTY = "Empty"
     SPOTLIGHT = "Spotlight"
     LAMPSHADE = "Lamp Shade"
+    # FLASHLIGHT = "Flash Light"
 
 
 def loadPreset(scene: FlowScene, preset: Preset = Preset.EMPTY):
@@ -97,3 +96,29 @@ def loadPreset(scene: FlowScene, preset: Preset = Preset.EMPTY):
                                 pointMix[PortType.input][1])
         scene.create_connection(pointMix[PortType.output][0],
                                 display[PortType.input][0])
+
+    # elif preset is Preset.FLASHLIGHT:
+    #     spotlight = scene.create_node(SpotlightNode)
+    #     spotlight.position += QPointF(500, 100)
+    #     spotlight.model.setLightDiretion(LightDirection.UP)
+    #     spotlight.model.setAngle(30)
+    #
+    #     noise = scene.create_node(NoiseNode)
+    #     noise.position += QPointF(500, 700)
+    #
+    #     mix = scene.create_node(MixNode)
+    #     mix.position += QPointF(1000, 300)
+    #     mix.model.setMixMethod(MixMethod.MULTIPLY)
+    #
+    #     display = scene.create_node(DisplayNode)
+    #     display.position += QPointF(1500, 100)
+    #     display.model.setLightPositionZ(0)
+    #     display.model.setLightPositionY(60)
+    #     display.model.setLightRotationX(-90)
+    #
+    #     scene.create_connection(spotlight[PortType.output][0],
+    #                             mix[PortType.input][0])
+    #     scene.create_connection(noise[PortType.output][0],
+    #                             mix[PortType.input][1])
+    #     scene.create_connection(mix[PortType.output][0],
+    #                             display[PortType.input][0])

@@ -544,6 +544,16 @@ QTabBar::tab:right:!selected:hover {
   padding: 0px;
 }
 
+QMenuBar {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 1px solid;
+}
+
+QStatusBar {
+  background-color: SOLIDBACKGROUNDCOLOR;
+  border: 1px solid;
+}
+
 .QFrame {
   border-radius: 4px;
   border: 1px solid;

@@ -11,8 +11,8 @@
 
 from screeninfo import get_monitors
 
-from qtpy.QtWidgets import (QSplashScreen, QGroupBox,
-                            QFormLayout, QComboBox)
+from qtpy.QtWidgets import (QSplashScreen, QGroupBox, QPushButton,
+                            QFormLayout, QComboBox, QLabel, QSpacerItem)
 from qtpy.QtGui import QPixmap
 from qtpy.QtCore import QPoint
 
@@ -21,9 +21,8 @@ from menu import Preset, loadPreset
 
 class CNDLSplashScreen(QSplashScreen):
 
-    def __init__(self, view, scene):
-        self.view = view
-        self.scene = scene
+    def __init__(self, app):
+        self.app = app
         monitor = get_monitors()[0]
         if monitor.height <= 1100:
             pixmap = QPixmap("img/splashscreen1080p.png")
@@ -37,7 +36,7 @@ class CNDLSplashScreen(QSplashScreen):
             pixmap = QPixmap("img/splashscreen4K.png")
             height = 1024
             width = 1812
-        super().__init__(view, pixmap=pixmap)
+        super().__init__(app.view, pixmap=pixmap)
 
         self.items = QGroupBox(self)
         self.layout = QFormLayout()
@@ -52,5 +51,26 @@ class CNDLSplashScreen(QSplashScreen):
         self.presetCB.currentIndexChanged.connect(self.setPreset)
         self.layout.addRow("Preset", self.presetCB)
 
+        self.tutorialButton = QPushButton("Show Tutorial")
+        self.tutorialButton.clicked.connect(self.showTutorial)
+        self.layout.addRow(self.tutorialButton)
+
+    def showTutorial(self):
+        TutorialSplashScreen(self.app).show()
+
     def setPreset(self):
-        loadPreset(self.scene, Preset(self.presetCB.currentText()))
+        loadPreset(self.app.scene, Preset(self.presetCB.currentText()))
+
+
+class TutorialSplashScreen(QSplashScreen):
+
+    def __init__(self, app):
+        self.app = app
+        monitor = get_monitors()[0]
+        if monitor.height <= 1100:
+            pixmap = QPixmap("img/Tutorial1080p.png")
+        elif monitor.height <= 1500:
+            pixmap = QPixmap("img/Tutorial1440p.png")
+        else:
+            pixmap = QPixmap("img/Tutorial4K.png")
+        super().__init__(app.view, pixmap=pixmap)

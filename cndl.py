@@ -14,7 +14,7 @@ import logging as log
 from screeninfo import get_monitors
 
 import qtpynodeeditor as nodeeditor
-from qtpy.QtWidgets import (QApplication)
+from qtpy.QtWidgets import (QApplication, QMenuBar, QHBoxLayout)
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import QPointF
 
@@ -26,7 +26,7 @@ from nodes import (FileNode,
                    DisplayNode,
                    NormalizeNode)
 
-from menu import CNDLSplashScreen
+from menu import CNDLSplashScreen, CNDLMenuBar
 
 from multiprocessing import freeze_support
 
@@ -87,12 +87,24 @@ class CNDL(QApplication):
                          monitor.height - monitor.height / 10)
         self.view.move(monitor.width / 30, monitor.height / 30)
 
+        if monitor.height < 1100:
+            self.view.scale_down()
+            self.view.scale_down()
+            self.view.scale_down()
+            self.view.scale_down()
+        elif monitor.height < 1500:
+            self.view.scale_down()
+            self.view.scale_down()
+
         displayNode = self.scene.create_node(DisplayNode)
         displayNode.position += QPointF(self.view.geometry().width() / 2,
                                         self.view.geometry().height() / 3)
 
+        CNDLMenuBar(self)
+
         self.view.show()
-        CNDLSplashScreen(self.view, self.scene).show()
+        CNDLSplashScreen(self).show()
+
 
 
 if __name__ == '__main__':

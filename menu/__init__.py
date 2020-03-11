@@ -12,3 +12,4 @@
 
 from .presets import * # noqa
 from .splashscreen import * # noqa
+from .menu import * # noqa
