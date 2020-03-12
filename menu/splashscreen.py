@@ -14,7 +14,7 @@ from screeninfo import get_monitors
 from qtpy.QtWidgets import (QSplashScreen, QGroupBox, QPushButton,
                             QFormLayout, QComboBox, QLabel, QSpacerItem)
 from qtpy.QtGui import QPixmap
-from qtpy.QtCore import QPoint
+from qtpy.QtCore import QPoint, Qt
 
 from menu import Preset, loadPreset
 
@@ -51,9 +51,21 @@ class CNDLSplashScreen(QSplashScreen):
         self.presetCB.currentIndexChanged.connect(self.setPreset)
         self.layout.addRow("Preset", self.presetCB)
 
+        self.layout.addItem(QSpacerItem(10, 10))
+
         self.tutorialButton = QPushButton("Show Tutorial")
         self.tutorialButton.clicked.connect(self.showTutorial)
         self.layout.addRow(self.tutorialButton)
+
+        self.layout.addItem(QSpacerItem(30, 30))
+
+        label = QLabel("CNDL v1.0")
+        label.setAlignment(Qt.AlignCenter)
+        self.layout.addRow(label)
+
+        label = QLabel("Created by Lazy Morning Games")
+        label.setAlignment(Qt.AlignCenter)
+        self.layout.addRow(label)
 
     def showTutorial(self):
         TutorialSplashScreen(self.app).show()

@@ -14,7 +14,7 @@ import logging as log
 from screeninfo import get_monitors
 
 import qtpynodeeditor as nodeeditor
-from qtpy.QtWidgets import (QApplication, QMenuBar, QHBoxLayout)
+from qtpy.QtWidgets import (QApplication)
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import QPointF
 
@@ -29,8 +29,6 @@ from nodes import (FileNode,
 from menu import CNDLSplashScreen, CNDLMenuBar
 
 from multiprocessing import freeze_support
-
-freeze_support()
 
 
 def processStyle(style: str) -> str:
@@ -106,8 +104,8 @@ class CNDL(QApplication):
         CNDLSplashScreen(self).show()
 
 
-
 if __name__ == '__main__':
+    freeze_support()
     log.basicConfig(level='DEBUG')
     app = CNDL()
     app.exec_()

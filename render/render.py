@@ -9,6 +9,7 @@
 # permission of Nick McDonald
 ########################################################
 
+import os
 
 from multiprocessing import Process, Value, Event
 
@@ -79,6 +80,8 @@ class Renderer():
         self.setNewIes(ies, peakintensity)
         self.setLightTransform(position, rotation)
         if not self.renderProcess or not self.renderProcess.is_alive():
+            if not os.path.exists('img/render'):
+                os.makedirs('img/render')
             self.renderProcess = Process(target=luxRender,
                                          args=(self.notify,
                                                self.samples,

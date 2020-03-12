@@ -16,7 +16,8 @@ QWidget:disabled {
 }
 
 QWidget::item:selected {
-  background-color: THEMECOLORMAIN;
+  background-color: THEMECOLORSOFT;
+  color: ALTBACKGROUNDCOLOR;
 }
 
 QWidget::item:hover {

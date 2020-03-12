@@ -12,8 +12,9 @@
 import os
 
 from qtpy.QtWidgets import (QMenuBar, QAction)
+from qtpy.QtGui import QIcon
 
-from menu import Preset, loadPreset
+from menu import Preset, loadPreset, CNDLSplashScreen, TutorialSplashScreen
 
 
 class CNDLMenuBar(QMenuBar):
@@ -21,20 +22,45 @@ class CNDLMenuBar(QMenuBar):
     def __init__(self, app):
         super().__init__(app.view)
         self.app = app
-
+        self.preset = Preset.EMPTY
         self.fileMenu = self.addMenu('&File')
+
         presetMenu = self.fileMenu.addMenu("Load Preset")
-        for preset in Preset:
-            action = QAction(preset.value)
-            action.triggered.connect(self.setPreset)
-            presetMenu.addAction(action)
+        action = QAction(QIcon(), Preset.EMPTY.value, self)
+        action.triggered.connect(self.setPresetEmpty)
+        presetMenu.addAction(action)
+        action = QAction(QIcon(), Preset.SPOTLIGHT.value, self)
+        action.triggered.connect(self.setPresetSpotlight)
+        presetMenu.addAction(action)
+        action = QAction(QIcon(), Preset.LAMPSHADE.value, self)
+        action.triggered.connect(self.setPresetLampshade)
+        presetMenu.addAction(action)
+        exit = QAction(QIcon(), '&Exit', self)
+        exit.setShortcut('Ctrl+Q')
+        exit.setStatusTip('Exit application')
+        exit.triggered.connect(self.app.quit)
+        self.fileMenu.addAction(exit)
 
         self.viewMenu = self.addMenu('&View')
 
-        showSplashscreen = QAction("Show Splash Screen")
+        zoomOut = QAction(QIcon(), "Zoom Out", self)
+        zoomOut.setShortcut("Down")
+        zoomOut.triggered.connect(self.app.view.scale_down)
+        self.viewMenu.addAction(zoomOut)
+
+        zoomIn = QAction(QIcon(), "Zoom In", self)
+        zoomIn.setShortcut("Up")
+        zoomIn.triggered.connect(self.app.view.scale_up)
+        self.viewMenu.addAction(zoomIn)
+
+        showSplashscreen = QAction(QIcon(), "Show Splash Screen", self)
+        showSplashscreen.triggered.connect(self.showSplashscreen)
         self.viewMenu.addAction(showSplashscreen)
 
         self.helpMenu = self.addMenu('&Help')
+        showTutorial = QAction(QIcon(), "Show Tutorial", self)
+        showTutorial.triggered.connect(self.showTutorial)
+        self.helpMenu.addAction(showTutorial)
 
         self.aboutMenu = self.addMenu('&About')
         self.aboutMenu.addAction("CNDL v1.0").setEnabled(False)
@@ -44,6 +70,17 @@ class CNDLMenuBar(QMenuBar):
     def openWebsite(self):
         os.system("start \"\" https://cndl.io")
 
-    def setPreset(self, other):
-        help(other)
-        loadPreset(self.app.scene, Preset(self.presetCB.currentText()))
+    def setPresetEmpty(self):
+        loadPreset(self.app.scene, Preset.EMPTY)
+
+    def setPresetSpotlight(self):
+        loadPreset(self.app.scene, Preset.SPOTLIGHT)
+
+    def setPresetLampshade(self):
+        loadPreset(self.app.scene, Preset.LAMPSHADE)
+
+    def showSplashscreen(self):
+        CNDLSplashScreen(self.app).show()
+
+    def showTutorial(self):
+        TutorialSplashScreen(self.app).show()
