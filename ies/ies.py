@@ -36,8 +36,14 @@ class IesAngle:
 
     def getIesOutput(self, peakIntensity: float) -> str:
         out = ""
+        i = 0
         for angle in sorted(self.points.keys()):
             out += "{0:.2f} ".format(self.points[angle] * peakIntensity)
+            if i >= 9:
+                out += "\n "
+                i = 0
+            else:
+                i = i + 1
         return out
 
 
@@ -138,12 +144,24 @@ class IesData:
                          openingLength,
                          openingHeight)
 
+        i = 0
         for angle in sorted(self.getLatAngles()):
             out += "{0:.2f} ".format(angle)
+            if i >= 9:
+                out += "\n "
+                i = 0
+            else:
+                i = i + 1
         out += "\n\n"
 
+        i = 0
         for angle in sorted(self.angles.keys()):
             out += "{0:.2f} ".format(angle)
+            if i >= 9:
+                out += "\n "
+                i = 0
+            else:
+                i = i + 1
         out += "\n\n"
 
         for angle in sorted(self.angles.keys()):
