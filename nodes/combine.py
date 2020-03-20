@@ -19,7 +19,7 @@ from preview import Preview2D
 from qtpy.QtWidgets import QWidget, QGroupBox, QFormLayout, QComboBox
 
 from qtpynodeeditor import NodeData, NodeDataModel
-from qtpynodeeditor import Port
+from qtpynodeeditor import Port, NodeValidationState
 
 
 class CombineNode(NodeDataModel):
@@ -79,6 +79,12 @@ class CombineNode(NodeDataModel):
             self._preview.update(None)
         self.data_updated.emit(0)
 
+    def validation_state(self) -> NodeValidationState:
+        return self._validation_state
+
+    def validation_message(self) -> str:
+        return self._validation_message
+
 
 class MixNode(CombineNode):
     name = "Mix"
@@ -92,15 +98,21 @@ class MixNode(CombineNode):
         self._methodCB.currentIndexChanged.connect(self.update)
         self._methodCB.setToolTip("Select the method used to mix IES data")
         self._layout.addRow(self._methodCB)
+        self._validation_state = NodeValidationState.warning
+        self._validation_message = 'Missing or invalid inputs'
 
     def update(self):
         if self._in1 and self._in2:
+            self._validation_state = NodeValidationState.valid
+            self._validation_message = ''
             self._out = IesNodeData(mixIesData(
                            self._in1.data,
                            self._in2.data,
                            MixMethod(self._methodCB.currentText())
             ))
         else:
+            self._validation_state = NodeValidationState.warning
+            self._validation_message = 'Missing or invalid inputs'
             self._out = None
         super().update()
 

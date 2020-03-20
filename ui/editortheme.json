@@ -17,7 +17,7 @@
     "ConnectionPointColor": "THEMECOLORMAIN",
     "FilledConnectionPointColor": "THEMECOLORHARD",
     "ErrorColor": "red",
-    "WarningColor": [128, 128, 0],
+    "WarningColor": "ALTBACKGROUNDCOLOR",
 
     "PenWidth": 1.0,
     "HoveredPenWidth": 1.5,
