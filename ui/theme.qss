@@ -26,8 +26,8 @@ QWidget::item:hover {
 }
 
 QToolTip {
-  background-color: THEMECOLORSOFT;
-  border: 1px solid THEMECOLORMAIN;
+  background-color: ALTBACKGROUNDCOLOR;
+  border: 1px solid THEMECOLORSOFT;
   color: TEXTCOLORMAIN;
   padding: 0px;
 }

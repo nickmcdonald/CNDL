@@ -112,12 +112,15 @@ class SpotlightNode(SourceNode):
         for method in FalloffMethod:
             self._methodCB.addItem(method.value)
         self._methodCB.currentIndexChanged.connect(self.update)
+        self._methodCB.setToolTip("Select the interpolation method for the" +
+                                  "falloff on the edges of the spotlight")
         self._layout.addRow("Falloff Method", self._methodCB)
 
         self._dirCB = QComboBox()
         for direction in LightDirection:
             self._dirCB.addItem(direction.value)
         self._dirCB.currentIndexChanged.connect(self.update)
+        self._dirCB.setToolTip("Select whether the light points up, or down")
         self._layout.addRow("Direction", self._dirCB)
 
         self._angleSlider = QSlider(Qt.Horizontal)
@@ -168,6 +171,7 @@ class FileNode(SourceNode):
 
         self._open_file_button = QPushButton("Open File")
         self._open_file_button.clicked.connect(self.on_file_button)
+        self._open_file_button.setToolTip("Open new IES file")
         self._open_file_text = QLineEdit()
         self._open_file_text.setReadOnly(True)
         self._layout.addRow(self._open_file_button, self._open_file_text)
@@ -212,6 +216,7 @@ class NoiseNode(SourceNode):
         self._seed = 0
         self._seed_button = QPushButton("Random Seed")
         self._seed_button.clicked.connect(self.on_seed_button)
+        self._seed_button.setToolTip("Set a new random seed for the noise")
         self._layout.addRow(self._seed_button)
 
         self.update()

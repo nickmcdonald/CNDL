@@ -87,10 +87,11 @@ class MixNode(CombineNode):
     def __init__(self, style=None, parent=None):
         super().__init__(style=style, parent=parent)
         self._methodCB = QComboBox()
-        self._layout.addRow(self._methodCB)
         for method in MixMethod:
             self._methodCB.addItem(method.value)
         self._methodCB.currentIndexChanged.connect(self.update)
+        self._methodCB.setToolTip("Select the method used to mix IES data")
+        self._layout.addRow(self._methodCB)
 
     def update(self):
         if self._in1 and self._in2:

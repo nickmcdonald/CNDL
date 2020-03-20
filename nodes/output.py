@@ -123,6 +123,8 @@ class DisplayNode(NodeDataModel):
 
         self._brightness_text = QLineEdit()
         self._brightness_text.setText("100")
+        self._brightness_text.setToolTip("The <strong>peak</strong> " +
+                                         "brightness of the light in Candelas")
         self._brightness_text.setValidator(QDoubleValidator())
         self._export_layout.addRow("Brightness (Candelas)",
                                    self._brightness_text)
@@ -130,12 +132,16 @@ class DisplayNode(NodeDataModel):
         self._export_file_button = QPushButton("Export")
         self._export_file_button.clicked.connect(self.on_file_button)
         self._export_file_button.setEnabled(False)
+        self._export_file_button.setToolTip("Select new export file name")
         self._export_file_text = QLineEdit()
         self._export_file_text.setReadOnly(True)
         self._export_layout.addRow(self._export_file_button,
                                    self._export_file_text)
         self._auto_export = QCheckBox()
         self._auto_export.setChecked(False)
+        self._auto_export.setWindowFlags(Qt.ToolTip)
+        self._auto_export.setToolTip("Automatically re-export when you make" +
+                                     "a change")
         self._export_layout.addRow("Auto Export", self._auto_export)
 
         self._tabs.addTab(self._export_form, "Export")
