@@ -94,7 +94,7 @@ class Renderer():
             self.state.value = RenderState.INTERRUPT.value
 
     def setNewIes(self, ies, peakintensity):
-        f = open("scenes/render.ies", "w")
+        f = open("scenes/basicIES/render.ies", "w")
         f.write(ies.getIesOutput(peakintensity))
         f.close()
 

@@ -8,8 +8,13 @@ __pycache__/
 *.blend2
 *.blend3
 
+# WiX
+*.wixobj
+*.wixpdb
+*.msi
+
 img/render/*
-scenes/render.ies
+scenes/basicIES/render.ies
 
 # C extensions
 *.so

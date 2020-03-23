@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <!-- Use * to generate product ID on every build -->
+  <Product Id="*"
+       Name="CNDL"
+       Language="1033"
+       Version="1.1.0"
+       Manufacturer="Lazy Morning Games"
+       UpgradeCode="79055219-19e4-41b0-a74a-1e3567b21920">
+
+    <Package Compressed="yes"
+         InstallScope="perMachine"
+         Manufacturer="Lazy Morning Games"
+         Description="Installer for CNDL"
+         Comments="(c) 2020 Lazy Morning Games" />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <!--Directory structure-->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="DIR_base" Name="CNDL">
+          <Directory Id="DIR_img" Name="img">
+            <Directory Id="DIR_render" Name="render" />
+          </Directory>
+          <Directory Id="DIR_scenes" Name="scenes" />
+          <Directory Id="DIR_ui" Name="ui" />
+        </Directory>
+        <Directory Id="ProgramMenuFolder">
+          <Directory Id="DIR_Shortcuts" Name="CNDL" />
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <!--Components-->
+    <DirectoryRef Id="DIR_img">
+      <Component Id="CMP_CNDL_IMG_FILES" Guid="4038174b-45ad-40e0-ac12-994d430019ac">
+        <File Id="FILE_IMG_CNDL_ICO" Source="dist/img/CNDL.ico" KeyPath="yes" />
+        <File Id="FILE_IMG_RENDER_PLACEHOLDER_PNG" Source="dist/img/RenderPlaceholder.png" />
+        <File Id="FILE_IMG_SPLASHSCREEN_4K_PNG" Source="dist/img/splashscreen4K.png" />
+        <File Id="FILE_IMG_SPLASHSCREEN_1080P_PNG" Source="dist/img/splashscreen1080p.png" />
+        <File Id="FILE_IMG_SPLASHSCREEN_1440P_PNG" Source="dist/img/splashscreen1440p.png" />
+        <File Id="FILE_IMG_TUTORIAL_4K_PNG" Source="dist/img/Tutorial4K.png" />
+        <File Id="FILE_IMG_TUTORIAL_1080P_PNG" Source="dist/img/Tutorial1080p.png" />
+        <File Id="FILE_IMG_TUTORIAL_1440P_PNG" Source="dist/img/Tutorial1440p.png" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DIR_render">
+      <Component Id="CMP_CNDL_RENDER_FILES" Guid="ad56bbcc-181c-4191-aef7-1e5eef09d590">
+        <CreateFolder>
+          <Permission User="Everyone" GenericAll="yes" />
+        </CreateFolder>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DIR_scenes">
+      <Directory Id='basicIES' Name='basicIES'>
+        <Component Id="CMP_CNDL_SCENE_FILES" Guid="9e33ab0a-ff1b-4da5-96b3-def28d15d133">
+          <File Id="FILE_SCENE_BASICIES_CFG" Source="scenes/basicIES/basicIES.cfg" KeyPath="yes">
+            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
+          </File>
+          <File Id="FILE_SCENE_BASICIES_SCN" Source="scenes/basicIES/basicIES.scn">
+            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
+          </File>
+          <File Id="FILE_SCENE_BASICIES_SCN_PRE" Source="scenes/basicIES/basicIES.scn.preformat">
+            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
+          </File>
+          <File Id="FILE_SCENE_BASICIES_PLY" Source="scenes/basicIES/room.ply">
+            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
+          </File>
+          <File Id="FILE_SCENE_RENDER_IES" Source="scenes/basicIES/render.ies">
+            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
+          </File>
+        </Component>
+      </Directory>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DIR_ui">
+      <Component Id="CMP_CNDL_UI_FILES" Guid="83d0eb2a-7f25-47db-8c4f-5347964991ed">
+        <File Id="FILE_UI_EDITORTHEME_JSON" Source="ui/editortheme.json" KeyPath="yes" />
+        <File Id="FILE_UI_THEME_QSS" Source="ui/theme.qss" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DIR_base">
+      <Component Id="CMP_CNDL_FILES" Guid="35786e1f-deb3-45ec-9ca6-5636759fc2e8">
+        <File Id="FILE_CNDL_EXE" Source="dist/cndl.exe" KeyPath="yes" />
+        <File Id="FILE_EMBREE3_DLL" Source="dist/embree3.dll"/>
+        <File Id="FILE_OID_DLL" Source="dist/OpenImageDenoise.dll"/>
+        <File Id="FILE_OIIO_DLL" Source="dist/OpenImageIO.dll"/>
+        <File Id="FILE_PYLUXCORE_PYD" Source="dist/pyluxcore.pyd"/>
+        <File Id="FILE_TBB_DLL" Source="dist/tbb.dll"/>
+        <File Id="FILE_TBBMALLOC_DLL" Source="dist/tbbmalloc.dll"/>
+      </Component>
+    </DirectoryRef>
+
+
+    <!--Start Menu Shortcuts-->
+    <DirectoryRef Id="DIR_Shortcuts">
+      <Component Id="CMP_CNDLShortcut"
+             Guid="e70d4417-8289-4edb-a1ce-3a3a841edd6d">
+
+        <Shortcut Id="CNDL"
+              Name="CNDL"
+              Description="Launch CNDL"
+              Target="[DIR_base]/cndl.exe" />
+
+        <Shortcut Id="UninstallShortcut"
+              Name="Uninstall CNDL"
+              Description="Uninstalls CNDL"
+              Target="[System64Folder]msiexec.exe"
+              Arguments="/x [ProductCode]" />
+
+        <RemoveFolder Id="RemoveDIR_Shortcuts"
+                On="uninstall" />
+
+        <RegistryValue Root="HKCU"
+                 Key="Software\LazyMorningGames\CNDL"
+                 Name="installed"
+                 Type="integer"
+                 Value="1"
+                 KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!--Features-->
+    <Feature Id="CNDLINSTALLFEATURE"
+         Title="CNDL Feature"
+         Level="1">
+      <ComponentRef Id="CMP_CNDL_FILES" />
+      <ComponentRef Id="CMP_CNDL_IMG_FILES" />
+      <ComponentRef Id="CMP_CNDL_RENDER_FILES" />
+      <ComponentRef Id="CMP_CNDL_UI_FILES" />
+      <ComponentRef Id="CMP_CNDL_SCENE_FILES" />
+    </Feature>
+
+    <Feature Id="ShortcutsFeature"
+       Title="Shortcuts"
+       Level="1">
+      <ComponentRef Id="CMP_CNDLShortcut" />
+    </Feature>
+
+    <Icon Id="icon.ico" SourceFile="img\CNDL.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+  </Product>
+</Wix>

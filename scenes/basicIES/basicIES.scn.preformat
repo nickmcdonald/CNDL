@@ -20,7 +20,7 @@ scene.objects.floor.material = whitematte
 ###########################################################################
 scene.lights.previewIES.type = "mappoint"
 scene.lights.previewIES.transformation = {0}
-scene.lights.previewIES.iesfile = scenes/render.ies
+scene.lights.previewIES.iesfile = scenes/basicIES/render.ies
 scene.lights.previewIES.samples = 1
 scene.lights.previewIES.flipz = 1
 ###########################################################################
