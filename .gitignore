@@ -15,7 +15,7 @@ __pycache__/
 
 img/render/*
 scenes/basicIES/basicIES.scn
-scenes/basicIES/render.ies
+*/render.ies
 
 # C extensions
 *.so
