@@ -102,10 +102,13 @@
       <Component Id="CMP_CNDLShortcut"
              Guid="e70d4417-8289-4edb-a1ce-3a3a841edd6d">
 
+
+
         <Shortcut Id="CNDL"
               Name="CNDL"
-              Description="Launch CNDL"
-              Target="[DIR_base]/cndl.exe" />
+              Description="CNDL"
+              Target="[DIR_base]cndl.exe"
+              WorkingDirectory="DIR_base" />
 
         <Shortcut Id="UninstallShortcut"
               Name="Uninstall CNDL"
