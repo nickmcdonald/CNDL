@@ -14,8 +14,8 @@ __pycache__/
 *.msi
 
 img/render/*
-/scenes/basicIES/basicIES.scn
-/scenes/basicIES/render.ies
+scenes/basicIES/basicIES.scn
+scenes/basicIES/render.ies
 
 # C extensions
 *.so
