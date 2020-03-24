@@ -7,15 +7,15 @@ Development environment is only set up for windows at the moment.
 - Anaconda
 - Git
 
-```
-$ git clone https://github.com/nickmcdonald/CNDL.git
-$ conda env create
-$ conda activate cndl
+``` bash
+git clone https://github.com/nickmcdonald/CNDL.git
+conda env create
+conda activate cndl
 ```
 
 For development testing you can run CNDL with
-```
-$ python cndl.py
+``` bash
+python cndl.py
 ```
 
 ## Building
@@ -26,7 +26,7 @@ $ python cndl.py
 You will need to add WiX and 7zip to PATH
 
 To build the executable and installers use
-```
-$ build [version number]
+``` bash
+build [version number]
 ```
 The results will be in the dist directory
