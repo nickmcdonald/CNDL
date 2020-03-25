@@ -20,7 +20,8 @@ from preview import Preview2D
 from qtpy.QtWidgets import (QWidget, QPushButton, QSlider, QLineEdit,
                             QFileDialog, QGroupBox, QFormLayout, QComboBox)
 
-from qtpynodeeditor import NodeData, NodeDataModel, PortType
+from qtpynodeeditor import (NodeData, NodeDataModel, PortType,
+                            NodeValidationState)
 
 from qtpy.QtCore import Qt
 
@@ -58,7 +59,10 @@ class SourceNode(NodeDataModel):
         return self._form
 
     def update(self):
-        self._preview.update(self._out.data)
+        if self._out:
+            self._preview.update(self._out.data)
+        else:
+            self._preview.update(None)
         self.data_updated.emit(0)
 
 
@@ -186,6 +190,8 @@ class FileNode(SourceNode):
         self._open_file_text = QLineEdit()
         self._open_file_text.setReadOnly(True)
         self._layout.addRow(self._open_file_button, self._open_file_text)
+        self._validation_state = NodeValidationState.warning
+        self._validation_message = 'No file selected'
 
     def save(self) -> dict:
         doc = super().save()
@@ -194,11 +200,14 @@ class FileNode(SourceNode):
 
     def restore(self, state: dict):
         self._open_file_text.setText(state['open_file_text'])
-        f = open(state['open_file_text'], 'r')
-        with f:
-            data = f.read()
-            self._out = IesNodeData(parseIesData(data))
-            self.update()
+        self._loadFile(state['open_file_text'])
+        self.update()
+
+    def validation_state(self) -> NodeValidationState:
+        return self._validation_state
+
+    def validation_message(self) -> str:
+        return self._validation_message
 
     def on_file_button(self):
         dlg = QFileDialog()
@@ -209,11 +218,25 @@ class FileNode(SourceNode):
         if dlg.exec_():
             filenames = dlg.selectedFiles()
             self._open_file_text.setText(filenames[0])
-            f = open(filenames[0], 'r')
-            with f:
-                data = f.read()
+            self._loadFile(filenames[0])
+            self.update()
+            return
+
+        self._validation_state = NodeValidationState.warning
+        self._validation_message = 'No file selected'
+
+    def _loadFile(self, filename):
+        f = open(filename, 'r')
+        with f:
+            data = f.read()
+            try:
                 self._out = IesNodeData(parseIesData(data))
-                self.update()
+                self._validation_state = NodeValidationState.valid
+                self._validation_message = ''
+            except Exception:
+                self._out = None
+                self._validation_state = NodeValidationState.warning
+                self._validation_message = 'Invalid IES file'
 
 
 class NoiseNode(SourceNode):
