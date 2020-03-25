@@ -178,7 +178,7 @@ def noiseIesData(latscale: float, latintensity: float,
     ies = blankIesData(latRes=latscale, longRes=longscale)
     latnoise = {}
     longnoise = {}
-    random.seed = seed
+    random.seed(seed)
     for lat in ies.getLatAngles():
         latnoise[lat] = 1-(random.randrange(0, int(latintensity*100), 1)/100)
     for long in ies.getLongAngles():

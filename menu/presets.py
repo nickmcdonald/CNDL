@@ -32,7 +32,7 @@ class Preset(Enum):
 
 
 def loadPreset(scene: FlowScene, preset: Preset = Preset.EMPTY):
-    scene.clear()
+    scene.clear_scene()
 
     if preset is Preset.EMPTY:
         displayNode = scene.create_node(DisplayNode)

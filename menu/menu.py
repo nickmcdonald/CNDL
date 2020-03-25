@@ -14,7 +14,8 @@ import os
 from qtpy.QtWidgets import (QMenuBar, QAction)
 from qtpy.QtGui import QIcon
 
-from menu import Preset, loadPreset, CNDLSplashScreen, TutorialSplashScreen
+from menu import (Preset, loadPreset, CNDLSplashScreen, TutorialSplashScreen,
+                  saveCNDLFile, openCNDLFile)
 
 
 class CNDLMenuBar(QMenuBar):
@@ -24,6 +25,22 @@ class CNDLMenuBar(QMenuBar):
         self.app = app
         self.preset = Preset.EMPTY
         self.fileMenu = self.addMenu('&File')
+
+        self.workingFile = None
+        saveFile = QAction(QIcon(), "Save", self)
+        saveFile.setShortcut("Ctrl+S")
+        saveFile.triggered.connect(self.saveFile)
+        self.fileMenu.addAction(saveFile)
+
+        saveFileAs = QAction(QIcon(), "Save As...", self)
+        saveFileAs.setShortcut("Ctrl+Shift+S")
+        saveFileAs.triggered.connect(self.saveFileAs)
+        self.fileMenu.addAction(saveFileAs)
+
+        openFile = QAction(QIcon(), "Open...", self)
+        openFile.setShortcut("Ctrl+O")
+        openFile.triggered.connect(self.openFile)
+        self.fileMenu.addAction(openFile)
 
         presetMenu = self.fileMenu.addMenu("Load Preset")
         action = QAction(QIcon(), Preset.EMPTY.value, self)
@@ -72,15 +89,27 @@ class CNDLMenuBar(QMenuBar):
 
     def setPresetEmpty(self):
         loadPreset(self.app.scene, Preset.EMPTY)
+        self.workingFile = None
 
     def setPresetSpotlight(self):
         loadPreset(self.app.scene, Preset.SPOTLIGHT)
+        self.workingFile = None
 
     def setPresetLampshade(self):
         loadPreset(self.app.scene, Preset.LAMPSHADE)
+        self.workingFile = None
 
     def showSplashscreen(self):
         CNDLSplashScreen(self.app).show()
 
     def showTutorial(self):
         TutorialSplashScreen(self.app).show()
+
+    def saveFileAs(self):
+        self.workingFile = saveCNDLFile(self.app.scene)
+
+    def saveFile(self):
+        self.workingFile = saveCNDLFile(self.app.scene, self.workingFile)
+
+    def openFile(self):
+        self.workingFile = openCNDLFile(self.app.scene)

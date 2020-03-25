@@ -94,9 +94,9 @@ class CNDL(QApplication):
             self.view.scale_down()
             self.view.scale_down()
 
-        displayNode = self.scene.create_node(DisplayNode)
-        displayNode.position += QPointF(self.view.geometry().width() / 2,
-                                        self.view.geometry().height() / 3)
+        self.displayNode = self.scene.create_node(DisplayNode)
+        self.displayNode.position += QPointF(self.view.geometry().width() / 2,
+                                             self.view.geometry().height() / 3)
 
         CNDLMenuBar(self)
 

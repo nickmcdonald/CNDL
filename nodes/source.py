@@ -42,17 +42,6 @@ class SourceNode(NodeDataModel):
         self._preview = Preview2D(self._out.data)
         self._layout.addRow(self._preview)
 
-    def save(self) -> dict:
-        # save the state
-        doc = super().save()
-        if self._out:
-            doc['ies'] = self._out.data
-        return doc
-
-    def restore(self, state: dict):
-        # restore the state
-        pass
-
     def out_data(self, port: int) -> NodeData:
         '''
         The data output from this node
@@ -89,6 +78,14 @@ class PointlightNode(SourceNode):
         self._layout.addRow("Intensity", self._intensitySlider)
 
         self.update()
+
+        def save(self) -> dict:
+            doc = super().save()
+            doc['intensitySlider'] = self._intensitySlider.value()
+            return doc
+
+        def restore(self, state: dict):
+            self._intensitySlider.setValue(state['intensitySlider'])
 
     def update(self):
         self._out = IesNodeData(blankIesData(
@@ -139,6 +136,20 @@ class SpotlightNode(SourceNode):
 
         self.update()
 
+    def save(self) -> dict:
+        doc = super().save()
+        doc['methodCB'] = self._methodCB.currentText()
+        doc['dirCB'] = self._dirCB.currentText()
+        doc['angleSlider'] = self._angleSlider.value()
+        doc['falloffSlider'] = self._falloffSlider.value()
+        return doc
+
+    def restore(self, state: dict):
+        self._methodCB.setCurrentText(state['methodCB'])
+        self._dirCB.setCurrentText(state['dirCB'])
+        self._angleSlider.setValue(state['angleSlider'])
+        self._falloffSlider.setValue(state['falloffSlider'])
+
     def update(self):
         self._out = IesNodeData(spotlightIesData(
                     self._angleSlider.value(),
@@ -175,6 +186,19 @@ class FileNode(SourceNode):
         self._open_file_text = QLineEdit()
         self._open_file_text.setReadOnly(True)
         self._layout.addRow(self._open_file_button, self._open_file_text)
+
+    def save(self) -> dict:
+        doc = super().save()
+        doc['open_file_text'] = self._open_file_text.text()
+        return doc
+
+    def restore(self, state: dict):
+        self._open_file_text.setText(state['open_file_text'])
+        f = open(state['open_file_text'], 'r')
+        with f:
+            data = f.read()
+            self._out = IesNodeData(parseIesData(data))
+            self.update()
 
     def on_file_button(self):
         dlg = QFileDialog()
@@ -221,8 +245,21 @@ class NoiseNode(SourceNode):
 
         self.update()
 
+    def save(self) -> dict:
+        doc = super().save()
+        doc['seed'] = self._seed
+        doc['latscale'] = self._latscale.value()
+        doc['latintensity'] = self._latintensity.value()
+        return doc
+
+    def restore(self, state: dict):
+        self._seed = state['seed']
+        self._latscale.setValue(state['latscale'])
+        self._latintensity.setValue(state['latintensity'])
+
     def on_seed_button(self):
-        self.seed = random.randrange(0, 1000, 1)
+        random.seed()
+        self._seed = random.randrange(0, 1000, 1)
         self.update()
 
     def update(self):

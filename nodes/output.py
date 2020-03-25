@@ -164,6 +164,30 @@ class DisplayNode(NodeDataModel):
     def setLightRotationZ(self, val):
         self._light_z_rot.setValue(val)
 
+    def save(self) -> dict:
+        doc = super().save()
+        doc['light_x_pos'] = self._light_x_pos.value()
+        doc['light_y_pos'] = self._light_y_pos.value()
+        doc['light_z_pos'] = self._light_z_pos.value()
+        doc['light_x_rot'] = self._light_x_rot.value()
+        doc['light_y_rot'] = self._light_y_rot.value()
+        doc['light_z_rot'] = self._light_z_rot.value()
+        doc['brightness_text'] = self._brightness_text.text()
+        doc['export_file_text'] = self._export_file_text.text()
+        doc['auto_export'] = self._auto_export.isChecked()
+        return doc
+
+    def restore(self, state: dict):
+        self._light_x_pos.setValue(state['light_x_pos'])
+        self._light_y_pos.setValue(state['light_y_pos'])
+        self._light_z_pos.setValue(state['light_z_pos'])
+        self._light_x_rot.setValue(state['light_x_rot'])
+        self._light_y_rot.setValue(state['light_y_rot'])
+        self._light_z_rot.setValue(state['light_z_rot'])
+        self._brightness_text.setText(state['brightness_text'])
+        self._export_file_text.setText(state['export_file_text'])
+        self._auto_export.setChecked(state['auto_export'])
+
     def on_file_button(self):
         dlg = QFileDialog()
         dlg.setAcceptMode(QFileDialog.AcceptSave)

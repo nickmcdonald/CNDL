@@ -101,6 +101,14 @@ class MixNode(CombineNode):
         self._validation_state = NodeValidationState.warning
         self._validation_message = 'Missing or invalid inputs'
 
+    def save(self) -> dict:
+        doc = super().save()
+        doc['methodCB'] = self._methodCB.currentText()
+        return doc
+
+    def restore(self, state: dict):
+        self._methodCB.setCurrentText(state['methodCB'])
+
     def update(self):
         if self._in1 and self._in2:
             self._validation_state = NodeValidationState.valid
