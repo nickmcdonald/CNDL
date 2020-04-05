@@ -24,6 +24,7 @@ class CNDLSplashScreen(QSplashScreen):
     def __init__(self, app):
         self.app = app
         monitor = get_monitors()[0]
+
         if monitor.height <= 1100:
             pixmap = QPixmap("img/splashscreen1080p.png")
             height = 512
@@ -42,8 +43,15 @@ class CNDLSplashScreen(QSplashScreen):
         self.layout = QFormLayout()
         self.items.setLayout(self.layout)
 
-        self.items.move(QPoint(width/2 - width/8, height / 2))
-        self.items.resize(width/4, height / 2)
+        if monitor.height <= 1100:
+            self.items.move(QPoint(width/2 - width/4, height / 2))
+            self.items.resize(width/2, height / 2)
+        elif monitor.height <= 1500:
+            self.items.move(QPoint(width/2 - width/8, height / 2))
+            self.items.resize(width/4, height / 2)
+        else:
+            self.items.move(QPoint(width/2 - width/8, height / 2))
+            self.items.resize(width/4, height / 2)
 
         self.presetCB = QComboBox()
         for preset in Preset:

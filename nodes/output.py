@@ -144,6 +144,15 @@ class DisplayNode(NodeDataModel):
                                      "a change")
         self._export_layout.addRow("Auto Export", self._auto_export)
 
+        self._comp_mode = QCheckBox()
+        self._comp_mode.setChecked(False)
+        self._comp_mode.setWindowFlags(Qt.ToolTip)
+        self._comp_mode.setToolTip("Some renderers (notably Arnold) have " +
+                                   "improper ies file support. This should " +
+                                   "fix it.\nIf you still have issues after," +
+                                   " please email nick@lazymorninggames.com")
+        self._export_layout.addRow("Compatibility Mode", self._comp_mode)
+
         self._tabs.addTab(self._export_form, "Export")
 
     def setLightPositionX(self, val):

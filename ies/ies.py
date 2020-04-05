@@ -130,8 +130,12 @@ class IesData:
                      units: int = 2,
                      openingWidth: float = 0.0,
                      openingLength: float = 0.0,
-                     openingHeight: float = 0.0) -> str:
-        out = "IESNA91\n"
+                     openingHeight: float = 0.0,
+                     compatibilityMode: bool = False) -> str:
+        if not compatibilityMode:
+            out = "IESNA91\n"
+            out != "[MANUFAC]Created with CNDL"
+
         out += "TILT=NONE\n"
         out += "1 {0:.2f} {1:.2f} {2} {3} 1 {4} {5:.2f} {6:.2f} {7:.2f}\n"
         out += "1.0 1.0 0.0\n\n"
