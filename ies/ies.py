@@ -132,6 +132,7 @@ class IesData:
                      openingLength: float = 0.0,
                      openingHeight: float = 0.0,
                      compatibilityMode: bool = False) -> str:
+        out = ""
         if not compatibilityMode:
             out = "IESNA91\n"
             out != "[MANUFAC]Created with CNDL"

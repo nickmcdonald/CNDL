@@ -217,7 +217,8 @@ class DisplayNode(NodeDataModel):
             if self._ies:
                 try:
                     f.write(self._ies.data.getIesOutput(float(
-                            self._brightness_text.text())))
+                            self._brightness_text.text()),
+                            compatibilityMode=self._comp_mode.isChecked()))
                 except ValueError:
                     f.write(self._ies.data.getIesOutput(100))
             f.close()

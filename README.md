@@ -20,7 +20,7 @@ python cndl.py
 
 ## Building
 ## Updating Version Number
-Number must be updated in menu.py and splashscreen.py
+Number must be updated in cndl.wxs, menu.py and splashscreen.py
 ## Dependancies
 - WiX Toolset - https://wixtoolset.org/releases/
 - 7zip - https://www.7-zip.org/
