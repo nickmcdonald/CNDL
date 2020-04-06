@@ -67,7 +67,7 @@ class CNDLSplashScreen(QSplashScreen):
 
         self.layout.addItem(QSpacerItem(30, 30))
 
-        label = QLabel("CNDL v1.0")
+        label = QLabel("CNDL v1.1.0")
         label.setAlignment(Qt.AlignCenter)
         self.layout.addRow(label)
 
