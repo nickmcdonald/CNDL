@@ -12,7 +12,8 @@ releases = r.json()
 downloads = 0
 for release in releases:
     for asset in release["assets"]:
+        print(asset["name"] + ": " + str(asset["download_count"]))
         downloads += asset["download_count"]
 
 # printing the output
-print("downloads: " + str(downloads))
+print("total downloads: " + str(downloads))
