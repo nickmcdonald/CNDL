@@ -9,6 +9,7 @@
 # permission of Nick McDonald
 ########################################################
 
+import os
 from screeninfo import get_monitors
 
 from qtpy.QtWidgets import (QSplashScreen, QGroupBox, QPushButton,
@@ -67,6 +68,10 @@ class CNDLSplashScreen(QSplashScreen):
 
         self.layout.addItem(QSpacerItem(30, 30))
 
+        label = QPushButton("Please Support us on Patreon")
+        label.clicked.connect(self.showPatreon)
+        self.layout.addRow(label)
+
         label = QLabel("CNDL v1.1.0")
         label.setAlignment(Qt.AlignCenter)
         self.layout.addRow(label)
@@ -80,6 +85,9 @@ class CNDLSplashScreen(QSplashScreen):
 
     def setPreset(self):
         loadPreset(self.app.scene, Preset(self.presetCB.currentText()))
+
+    def showPatreon(self):
+        os.system("start \"\" https://www.patreon.com/lazymorninggames")
 
 
 class TutorialSplashScreen(QSplashScreen):
