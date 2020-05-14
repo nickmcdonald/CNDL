@@ -72,7 +72,7 @@ class CNDLSplashScreen(QSplashScreen):
         label.clicked.connect(self.showPatreon)
         self.layout.addRow(label)
 
-        label = QLabel("CNDL v1.1.0")
+        label = QLabel("CNDL v1.1.1")
         label.setAlignment(Qt.AlignCenter)
         self.layout.addRow(label)
 

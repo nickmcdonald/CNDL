@@ -80,7 +80,7 @@ class CNDLMenuBar(QMenuBar):
         self.helpMenu.addAction(showTutorial)
 
         self.aboutMenu = self.addMenu('&About')
-        self.aboutMenu.addAction("CNDL v1.1.0").setEnabled(False)
+        self.aboutMenu.addAction("CNDL v1.1.1").setEnabled(False)
         self.aboutMenu.addAction("By Lazy Morning Games").setEnabled(False)
         self.aboutMenu.addAction("Website").triggered.connect(self.openWebsite)
 

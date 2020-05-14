@@ -14,11 +14,12 @@ from render import Renderer
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+import os
 
 from qtpy.QtWidgets import (QWidget, QLabel, QFileDialog, QTabWidget,
                             QPushButton, QGroupBox, QFormLayout, QLineEdit,
                             QCheckBox, QSlider, QSpacerItem)
-from qtpy.QtGui import QPixmap, QDoubleValidator
+from qtpy.QtGui import QPixmap, QImage, QDoubleValidator
 from qtpy.QtCore import Qt
 
 from qtpynodeeditor import NodeData, NodeDataModel
@@ -57,8 +58,7 @@ class DisplayNode(NodeDataModel):
 
         self._render_view = QLabel()
         self._render_view.setPixmap(QPixmap('img/RenderPlaceholder.png'))
-        self._render_passes = 2
-        self._renderer = Renderer()
+        self._renderer = Renderer(self.update_image_data)
         event_handler = DisplayUpdateHandler(self.update_image)
         observer = Observer()
         observer.schedule(event_handler, os.getcwd(), recursive=True)
@@ -68,6 +68,7 @@ class DisplayNode(NodeDataModel):
         self._light_z_pos.setMaximum(60)
         self._light_z_pos.setValue(30)
         self._light_z_pos.valueChanged.connect(self.update)
+        self._light_z_pos.sliderReleased.connect(self.update_force)
         self._render_layout.addRow(self._render_view, self._light_z_pos)
 
         self._render_controls_form = QGroupBox()
@@ -79,6 +80,7 @@ class DisplayNode(NodeDataModel):
         self._light_x_pos.setMaximum(60)
         self._light_x_pos.setValue(0)
         self._light_x_pos.valueChanged.connect(self.update)
+        self._light_x_pos.sliderReleased.connect(self.update_force)
         self._render_controls_layout.addRow("Position X", self._light_x_pos)
 
         self._light_y_pos = QSlider(Qt.Horizontal)
@@ -86,6 +88,7 @@ class DisplayNode(NodeDataModel):
         self._light_y_pos.setMaximum(60)
         self._light_y_pos.setValue(0)
         self._light_y_pos.valueChanged.connect(self.update)
+        self._light_y_pos.sliderReleased.connect(self.update_force)
         self._render_controls_layout.addRow("Position Y", self._light_y_pos)
 
         self._render_controls_layout.addItem(QSpacerItem(10, 10))
@@ -95,6 +98,7 @@ class DisplayNode(NodeDataModel):
         self._light_x_rot.setMaximum(180)
         self._light_x_rot.setValue(0)
         self._light_x_rot.valueChanged.connect(self.update)
+        self._light_x_rot.sliderReleased.connect(self.update_force)
         self._render_controls_layout.addRow("Rotation X", self._light_x_rot)
 
         self._light_y_rot = QSlider(Qt.Horizontal)
@@ -102,6 +106,7 @@ class DisplayNode(NodeDataModel):
         self._light_y_rot.setMaximum(180)
         self._light_y_rot.setValue(0)
         self._light_y_rot.valueChanged.connect(self.update)
+        self._light_y_rot.sliderReleased.connect(self.update_force)
         self._render_controls_layout.addRow("Rotation Y", self._light_y_rot)
 
         self._light_z_rot = QSlider(Qt.Horizontal)
@@ -109,6 +114,7 @@ class DisplayNode(NodeDataModel):
         self._light_z_rot.setMaximum(180)
         self._light_z_rot.setValue(0)
         self._light_z_rot.valueChanged.connect(self.update)
+        self._light_z_rot.sliderReleased.connect(self.update_force)
         self._render_controls_layout.addRow("Rotation Z", self._light_z_rot)
 
         self._render_layout.addRow(self._render_controls_form)
@@ -221,15 +227,15 @@ class DisplayNode(NodeDataModel):
                     f.write(self._ies.data.getIesOutput(100))
             f.close()
 
-    def execute_render(self):
+    def execute_render(self, force):
         self._renderer.render(self._ies.data,
+                              force,
                               position=[self._light_x_pos.value() * -0.09,
                                         0.5 + self._light_y_pos.value() * 0.09,
                                         3 + self._light_z_pos.value() * 0.049],
                               rotation=[self._light_x_rot.value(),
                                         self._light_y_rot.value(),
-                                        self._light_z_rot.value()],
-                              samples=self._render_passes)
+                                        self._light_z_rot.value()])
 
     def set_in_data(self, data: NodeData, port: Port):
         '''
@@ -243,7 +249,18 @@ class DisplayNode(NodeDataModel):
 
         if ies_ok:
             self._export_file_button.setEnabled(True)
-            self.execute_render()
+            self.execute_render(False)
+            if self._auto_export.isChecked():
+                self.export()
+        else:
+            self._export_file_button.setEnabled(False)
+            self._render_view.setPixmap(QPixmap('img/RenderPlaceholder.png'))
+
+    def update_force(self):
+        ies_ok = (self._ies is not None and self._ies.data_type.id in ('ies'))
+        if ies_ok:
+            self._export_file_button.setEnabled(True)
+            self.execute_render(True)
             if self._auto_export.isChecked():
                 self.export()
         else:
@@ -252,6 +269,12 @@ class DisplayNode(NodeDataModel):
 
     def update_image(self):
         self._render_view.setPixmap(QPixmap('img/render/renderimage.png'))
+
+    def update_image_data(self, data, size):
+
+        img = QImage(data, size[0], size[1], 3 * size[0], QImage.Format_RGB888)
+        img = img.mirrored(False, True)
+        self._render_view.setPixmap(QPixmap(img))
 
     def embedded_widget(self) -> QWidget:
         return self._tabs

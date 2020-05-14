@@ -10,7 +10,6 @@
 ########################################################
 
 
-import logging as log
 from screeninfo import get_monitors
 
 import qtpynodeeditor as nodeeditor
@@ -106,6 +105,5 @@ class CNDL(QApplication):
 
 if __name__ == '__main__':
     freeze_support()
-    log.basicConfig(level='DEBUG')
     app = CNDL()
     app.exec_()
