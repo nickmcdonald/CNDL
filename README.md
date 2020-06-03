@@ -25,7 +25,7 @@ Number must be updated in cndl.wxs, menu.py and splashscreen.py
 - WiX Toolset - https://wixtoolset.org/releases/
 - 7zip - https://www.7-zip.org/
 
-You will need to add WiX and 7zip to PATH
+You will need to add WiX and 7zip to PATH and add Environment var PYTHONPATH pointing to the new conda env
 
 To build the executable and installers use
 ``` bash

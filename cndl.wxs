@@ -58,9 +58,6 @@
     <DirectoryRef Id="DIR_scenes">
       <Directory Id='basicIES' Name='basicIES'>
         <Component Id="CMP_CNDL_SCENE_FILES" Guid="9e33ab0a-ff1b-4da5-96b3-def28d15d133">
-          <File Id="FILE_SCENE_BASICIES_CFG" Source="scenes/basicIES/basicIES.cfg" KeyPath="yes">
-            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
-          </File>
           <File Id="FILE_SCENE_BASICIES_PLY" Source="scenes/basicIES/room.ply">
             <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
           </File>
