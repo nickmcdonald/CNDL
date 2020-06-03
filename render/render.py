@@ -10,8 +10,11 @@
 ########################################################
 
 import os
+import time
+import base64
 
-from multiprocessing import Process, Value, Event
+from multiprocessing import Process, Value, Event, Manager, Lock
+from ctypes import c_char_p
 
 from enum import Enum
 
@@ -23,48 +26,119 @@ import pyluxcore as lux
 class RenderState(Enum):
     WAITING = 1
     RENDERING = 2
-    INTERRUPT = 3
+    EDIT = 3
+
+TEMP_DIR = os.getenv('TEMP') + "\cndl"
+try:
+    os.makedirs(TEMP_DIR)
+except:
+    print(TEMP_DIR + " Exists")
 
 
-def luxRender(notify, samples, state):
+def luxRender(notify, samples, state, lightTranform, iesFileLock):
+    configProps = lux.Properties()
+    configProps.SetFromString("""
+            renderengine.type = "RTPATHCPU"
+            sampler.type = "RTPATHCPUSAMPLER"
 
+            native.threads.count = 2
+
+            path.pathdepth.total = 2
+
+            film.width = 512
+            film.height = 512
+
+            filesaver.directory = "{0}"
+            film.outputs.0.filename = "{0}/renderimage.png"
+            """.format(TEMP_DIR))
+
+    sceneProps = lux.Properties()
+    sceneProps.SetFromString("""
+            scene.camera.lookat.orig = 0 12.0 3.0
+            scene.camera.lookat.target = 0.0 0.0 3.0
+            scene.camera.fieldofview = 60
+
+            scene.materials.whitematte.type = matte
+            scene.materials.whitematte.kd = 0.75 0.75 0.75
+
+            scene.objects.floor.ply = scenes/basicIES/room.ply
+            scene.objects.floor.material = whitematte
+
+            scene.lights.previewIES.type = "mappoint"
+            scene.lights.previewIES.transformation = {0}
+            scene.lights.previewIES.iesfile = {1}/render.ies
+            scene.lights.previewIES.samples = 1
+            scene.lights.previewIES.flipz = 1
+            """.format(lightTranform[0], TEMP_DIR))
+
+    scene = lux.Scene(sceneProps)
+    config = lux.RenderConfig(configProps, scene)
+    session = lux.RenderSession(config)
+
+    session.Start()
     while(True):
 
-        if state.value != RenderState.INTERRUPT.value:
+        if state.value != RenderState.EDIT.value:
             state.value = RenderState.WAITING.value
-            wasNotified = notify.wait(3)
+            wasNotified = notify.wait(10)
             if not wasNotified:
                 break
             notify.clear()
+
+        if state.value == RenderState.EDIT.value:
+            session.Pause()
+            luxcore_scene = session.GetRenderConfig().GetScene()
+            session.BeginSceneEdit()
+
+            luxcore_scene.DeleteLight("previewIES")
+
+            props = lux.Properties()
+            props.SetFromString("""
+                    scene.lights.previewIES.type = "mappoint"
+                    scene.lights.previewIES.transformation = {0}
+                    scene.lights.previewIES.iesfile = {1}/render.ies
+                    scene.lights.previewIES.samples = 1
+                    scene.lights.previewIES.flipz = 1
+                    """.format(lightTranform[0], TEMP_DIR))
+
+            iesFileLock.acquire()
+            luxcore_scene.Parse(props)
+            iesFileLock.release()
+
+
+            session.EndSceneEdit()
+            session.Resume()
+
         state.value = RenderState.RENDERING.value
-        session = None
+
         try:
-            props = lux.Properties("scenes/basicIES/basicIES.cfg")
-            config = lux.RenderConfig(props)
-            session = lux.RenderSession(config)
-            session.Start()
-            previousPass = -1
-            while True:
-                if state.value == RenderState.INTERRUPT.value:
-                    break
+            startTime = time.time()
+            for i in range(0, 50):
+                time.sleep(0.1)
+                elapsedTime = time.time() - startTime
+
+                # Print some information about the rendering progress
+
+                # Update statistics
                 session.UpdateStats()
-                stats = session.GetStats()
 
-                elapsed = stats.Get("stats.renderengine.time").GetFloat()
-                currentPass = stats.Get("stats.renderengine.pass").GetInt()
+                stats = session.GetStats();
+                print("[Elapsed time: %3d/3sec][Samples %4d]" % (
+                        stats.Get("stats.renderengine.time").GetFloat(),
+                        stats.Get("stats.renderengine.pass").GetInt()))
 
-                if currentPass > previousPass:
-                    session.GetFilm().Save()
-                    previousPass = currentPass
-                if currentPass >= samples.value or elapsed > 3:
+                session.GetFilm().Save()
+
+                if state.value == RenderState.EDIT.value:
+                    break
+                if stats.Get("stats.renderengine.pass").GetInt() >= 4:
+                    state.value = RenderState.WAITING.value
                     break
 
-            session.Stop()
         except RuntimeError:
-            state.value = RenderState.INTERRUPT.value
-        finally:
-            if session:
-                session.Stop()
+            state.value = RenderState.EDIT.value
+
+    session.Stop()
 
 
 class Renderer():
@@ -74,34 +148,43 @@ class Renderer():
         self.samples = Value('i', 2)
         self.notify = Event()
         self.renderProcess = None
+        manager = Manager()
+        self.lightTranform = manager.list([self.getTransform()])
+        # self.iesBlob = manager.list([base64.b64encode(b"")])
+        self.iesFileLock = Lock()
 
     def render(self, ies, peakintensity=100,
                position=[0.0, 0.5, 3.0], rotation=[0, 0, 0], samples=2):
+
+        self.lightTranform[0] = self.getTransform(position, rotation)
+        # iesBlob = base64.b64encode(bytes(ies.getIesOutput(peakintensity),
+        #                            encoding='utf-8'))
+        # self.iesBlob[0] = iesBlob.decode("utf-8")
+
         self.setNewIes(ies, peakintensity)
-        self.setLightTransform(position, rotation)
+
         if not self.renderProcess or not self.renderProcess.is_alive():
-            if not os.path.exists('img/render'):
-                os.makedirs('img/render')
             self.renderProcess = Process(target=luxRender,
                                          args=(self.notify,
                                                self.samples,
-                                               self.state))
+                                               self.state,
+                                               self.lightTranform,
+                                               self.iesFileLock))
             self.renderProcess.start()
         self.samples.value = samples
         if self.state.value == RenderState.WAITING.value:
             self.notify.set()
         else:
-            self.state.value = RenderState.INTERRUPT.value
+            self.state.value = RenderState.EDIT.value
 
     def setNewIes(self, ies, peakintensity):
-        f = open("scenes/basicIES/render.ies", "w")
+        self.iesFileLock.acquire()
+        f = open(TEMP_DIR + "/render.ies", "w")
         f.write(ies.getIesOutput(peakintensity))
         f.close()
+        self.iesFileLock.release()
 
-    def setLightTransform(self, position, rotation):
-        fin = open("scenes/basicIES/basicIES.scn.preformat", 'r')
-        preformat = fin.read()
-        fin.close()
+    def getTransform(self, position=[0.0, 0.5, 3.0], rotation=[0, 0, 0]):
 
         rot = Rotation.from_euler('xyz', rotation, degrees=True).as_matrix()
 
@@ -117,7 +200,4 @@ class Renderer():
                              rot[2][1],
                              rot[2][2],
                              position[0], position[1], position[2])
-
-        fout = open("scenes/basicIES/basicIES.scn", 'w')
-        fout.write(preformat.format(trans))
-        fout.close()
+        return trans

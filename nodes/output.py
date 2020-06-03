@@ -28,11 +28,12 @@ from qtpynodeeditor import PortType, Port
 
 from nodes import IesNodeData
 
+TEMP_DIR = os.getenv('TEMP') + "\cndl"
 
 class DisplayUpdateHandler(PatternMatchingEventHandler):
 
     def __init__(self, update_method):
-        super().__init__(patterns=["*/img/render/renderimage.png"])
+        super().__init__(patterns=["*/renderimage.png"])
 
         self.update = update_method
 
@@ -63,7 +64,7 @@ class DisplayNode(NodeDataModel):
         self._renderer = Renderer()
         event_handler = DisplayUpdateHandler(self.update_image)
         observer = Observer()
-        observer.schedule(event_handler, os.getcwd(), recursive=True)
+        observer.schedule(event_handler, TEMP_DIR, recursive=True)
         observer.start()
         self._light_z_pos = QSlider(Qt.Vertical)
         self._light_z_pos.setMinimum(-60)
@@ -253,7 +254,7 @@ class DisplayNode(NodeDataModel):
             self._render_view.setPixmap(QPixmap('img/RenderPlaceholder.png'))
 
     def update_image(self):
-        self._render_view.setPixmap(QPixmap('img/render/renderimage.png'))
+        self._render_view.setPixmap(QPixmap(TEMP_DIR + '/renderimage.png'))
 
     def embedded_widget(self) -> QWidget:
         return self._tabs

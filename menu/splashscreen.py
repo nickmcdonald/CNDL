@@ -68,11 +68,19 @@ class CNDLSplashScreen(QSplashScreen):
 
         self.layout.addItem(QSpacerItem(30, 30))
 
+        label = QLabel("CNDL is no longer free for professional use")
+        label.setAlignment(Qt.AlignCenter)
+        self.layout.addRow(label)
+
         label = QPushButton("Please Support us on Patreon")
         label.clicked.connect(self.showPatreon)
         self.layout.addRow(label)
 
-        label = QLabel("CNDL v1.1.0")
+        label = QLabel("or via another method listed on our website")
+        label.setAlignment(Qt.AlignCenter)
+        self.layout.addRow(label)
+
+        label = QLabel("CNDL v1.1.1")
         label.setAlignment(Qt.AlignCenter)
         self.layout.addRow(label)
 

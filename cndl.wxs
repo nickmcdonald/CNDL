@@ -5,7 +5,7 @@
   <Product Id="*"
        Name="CNDL"
        Language="1033"
-       Version="1.1.0"
+       Version="1.1.1"
        Manufacturer="Lazy Morning Games"
        UpgradeCode="79055219-19e4-41b0-a74a-1e3567b21920">
 
@@ -61,16 +61,7 @@
           <File Id="FILE_SCENE_BASICIES_CFG" Source="scenes/basicIES/basicIES.cfg" KeyPath="yes">
             <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
           </File>
-          <File Id="FILE_SCENE_BASICIES_SCN" Source="scenes/basicIES/basicIES.scn">
-            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
-          </File>
-          <File Id="FILE_SCENE_BASICIES_SCN_PRE" Source="scenes/basicIES/basicIES.scn.preformat">
-            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
-          </File>
           <File Id="FILE_SCENE_BASICIES_PLY" Source="scenes/basicIES/room.ply">
-            <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
-          </File>
-          <File Id="FILE_SCENE_RENDER_IES" Source="scenes/basicIES/render.ies">
             <Permission ChangePermission="yes" GenericAll="yes" User="Everyone" TakeOwnership="yes" Write="yes" WriteAttributes="yes" WriteExtendedAttributes="yes" />
           </File>
         </Component>
