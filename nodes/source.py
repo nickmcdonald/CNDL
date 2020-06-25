@@ -25,6 +25,7 @@ from qtpynodeeditor import (NodeData, NodeDataModel, PortType,
 
 from qtpy.QtCore import Qt
 
+import os
 import random
 
 
@@ -227,6 +228,87 @@ class FileNode(SourceNode):
 
     def _loadFile(self, filename):
         f = open(filename, 'r')
+        with f:
+            data = f.read()
+            try:
+                self._out = IesNodeData(parseIesData(data))
+                self._validation_state = NodeValidationState.valid
+                self._validation_message = ''
+            except Exception:
+                self._out = None
+                self._validation_state = NodeValidationState.warning
+                self._validation_message = 'Invalid IES file'
+
+
+class FolderNode(SourceNode):
+    name = "Folder Input"
+    caption_visible = True
+
+    def __init__(self, style=None, parent=None):
+        super().__init__(style=style, parent=parent)
+        self._out = None
+
+        self._open_folder_button = QPushButton("Open File")
+        self._open_folder_button.clicked.connect(self.on_folder_button)
+        self._open_folder_button.setToolTip("Open folder")
+        self._open_folder_text = QLineEdit()
+        self._open_folder_text.setReadOnly(True)
+        self._layout.addRow(self._open_folder_button, self._open_folder_text)
+
+        self._filesCB = QComboBox()
+        self._filesCB.currentIndexChanged.connect(self.update)
+        self._filesCB.setToolTip("Select IES File")
+        self._filesCB.setEnabled(False)
+        self._layout.addRow("IES File", self._filesCB)
+
+        self._validation_state = NodeValidationState.warning
+        self._validation_message = 'No folder selected'
+
+    def save(self) -> dict:
+        doc = super().save()
+        doc['open_folder_text'] = self._open_folder_text.text()
+        return doc
+
+    def restore(self, state: dict):
+        self._open_folder_text.setText(state['open_folder_text'])
+        folderPath = state['open_folder_text']
+        files = [f for f in os.listdir(folderPath) if f.endswith(".ies")]
+        self._filesCB.clear()
+        self._filesCB.addItems(files)
+        self._filesCB.setEnabled(True)
+        self.update()
+
+    def validation_state(self) -> NodeValidationState:
+        return self._validation_state
+
+    def validation_message(self) -> str:
+        return self._validation_message
+
+    def on_folder_button(self):
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.Directory)
+
+        if dlg.exec_():
+            folderPath = dlg.selectedFiles()[0]
+            self._open_folder_text.setText(folderPath)
+            files = [f for f in os.listdir(folderPath) if f.endswith(".ies")]
+            self._filesCB.clear()
+            self._filesCB.addItems(files)
+            self._filesCB.setEnabled(True)
+            self.update()
+            return
+
+        self._validation_state = NodeValidationState.warning
+        self._validation_message = 'No file selected'
+
+    def update(self):
+        self._loadFile(self._open_folder_text.text() + "/" +
+                       self._filesCB.currentText())
+        super().update()
+
+    def _loadFile(self, filename):
+        f = open(filename, 'r')
+        print(filename)
         with f:
             data = f.read()
             try:

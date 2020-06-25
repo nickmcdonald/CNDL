@@ -19,6 +19,7 @@ from qtpy.QtGui import QIcon
 from qtpy.QtCore import QPointF
 
 from nodes import (FileNode,
+                   FolderNode,
                    PointlightNode,
                    SpotlightNode,
                    NoiseNode,
@@ -64,6 +65,7 @@ class CNDL(QApplication):
 
         registry = nodeeditor.DataModelRegistry()
         models = (FileNode,
+                  FolderNode,
                   PointlightNode,
                   SpotlightNode,
                   NoiseNode)
