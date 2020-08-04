@@ -15,7 +15,8 @@ from qtpy.QtWidgets import (QMenuBar, QAction)
 from qtpy.QtGui import QIcon
 
 from menu import (Preset, loadPreset, CNDLSplashScreen, TutorialSplashScreen,
-                  saveCNDLFile, openCNDLFile)
+                  LicenseSplashScreen, saveCNDLFile, openCNDLFile)
+from version import VERSION
 
 
 class CNDLMenuBar(QMenuBar):
@@ -80,8 +81,9 @@ class CNDLMenuBar(QMenuBar):
         self.helpMenu.addAction(showTutorial)
 
         self.aboutMenu = self.addMenu('&About')
-        self.aboutMenu.addAction("CNDL v1.1.1").setEnabled(False)
+        self.aboutMenu.addAction(VERSION).setEnabled(False)
         self.aboutMenu.addAction("By Lazy Morning Games").setEnabled(False)
+        self.aboutMenu.addAction("Show License").triggered.connect(self.showLicense)
         self.aboutMenu.addAction("Website").triggered.connect(self.openWebsite)
 
     def openWebsite(self):
@@ -104,6 +106,9 @@ class CNDLMenuBar(QMenuBar):
 
     def showTutorial(self):
         TutorialSplashScreen(self.app).show()
+
+    def showLicense(self):
+        LicenseSplashScreen(self.app).show()
 
     def saveFileAs(self):
         self.workingFile = saveCNDLFile(self.app.scene)

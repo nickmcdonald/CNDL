@@ -248,7 +248,7 @@ class FolderNode(SourceNode):
         super().__init__(style=style, parent=parent)
         self._out = None
 
-        self._open_folder_button = QPushButton("Open File")
+        self._open_folder_button = QPushButton("Open Folder")
         self._open_folder_button.clicked.connect(self.on_folder_button)
         self._open_folder_button.setToolTip("Open folder")
         self._open_folder_text = QLineEdit()

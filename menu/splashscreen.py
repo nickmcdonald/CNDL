@@ -13,11 +13,13 @@ import os
 from screeninfo import get_monitors
 
 from qtpy.QtWidgets import (QSplashScreen, QGroupBox, QPushButton,
-                            QFormLayout, QComboBox, QLabel, QSpacerItem)
+                            QFormLayout, QComboBox, QLabel, QSpacerItem,
+                            QScrollArea, QWidget, QVBoxLayout)
 from qtpy.QtGui import QPixmap
 from qtpy.QtCore import QPoint, Qt
 
 from menu import Preset, loadPreset
+from version import VERSION
 
 
 class CNDLSplashScreen(QSplashScreen):
@@ -58,6 +60,7 @@ class CNDLSplashScreen(QSplashScreen):
         for preset in Preset:
             self.presetCB.addItem(preset.value)
         self.presetCB.currentIndexChanged.connect(self.setPreset)
+        self.presetCB.setCurrentIndex(1)
         self.layout.addRow("Preset", self.presetCB)
 
         self.layout.addItem(QSpacerItem(10, 10))
@@ -68,10 +71,6 @@ class CNDLSplashScreen(QSplashScreen):
 
         self.layout.addItem(QSpacerItem(30, 30))
 
-        label = QLabel("CNDL is no longer free for professional use")
-        label.setAlignment(Qt.AlignCenter)
-        self.layout.addRow(label)
-
         label = QPushButton("Please Support us on Patreon")
         label.clicked.connect(self.showPatreon)
         self.layout.addRow(label)
@@ -80,7 +79,7 @@ class CNDLSplashScreen(QSplashScreen):
         label.setAlignment(Qt.AlignCenter)
         self.layout.addRow(label)
 
-        label = QLabel("CNDL v1.1.1")
+        label = QLabel(VERSION)
         label.setAlignment(Qt.AlignCenter)
         self.layout.addRow(label)
 
@@ -110,3 +109,83 @@ class TutorialSplashScreen(QSplashScreen):
         else:
             pixmap = QPixmap("img/Tutorial4K.png")
         super().__init__(app.view, pixmap=pixmap)
+
+
+class LicenseSplashScreen(QSplashScreen):
+
+    def __init__(self, app):
+        self.app = app
+        monitor = get_monitors()[0]
+        if monitor.height <= 1100:
+            pixmap = QPixmap("img/splashscreen_empty1080p.png")
+        elif monitor.height <= 1500:
+            pixmap = QPixmap("img/splashscreen_empty1440p.png")
+        else:
+            pixmap = QPixmap("img/splashscreen_empty4K.png")
+
+        super().__init__(app.view, pixmap=pixmap)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.scroll = QScrollArea()
+        self.widget = QWidget()
+        self.vbox = QVBoxLayout()
+
+        self.layout.addWidget(self.scroll)
+
+        object = QLabel("TextLabel")
+        object.setText('''
+###############################################################################
+
+# CNDL #
+
+Copyright (C) 2020-2021 Lazy Morning Games <nick@lazymorninggames.com>
+
+###############################################################################
+
+# qtpynodeeditor #
+
+Copyright (c) 2019, Ken Lauer
+All rights reserved.
+
+qtpynodeeditor is a derivative work of NodeEditor by Dmitry Pinaev. It follows
+in the footsteps of the original and is licensed by the BSD 3-clause license.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of copyright holder, nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+###############################################################################
+        ''')
+        self.vbox.addWidget(object)
+
+        self.widget.setLayout(self.vbox)
+
+        #Scroll Area Properties
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.widget)

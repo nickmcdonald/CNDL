@@ -83,6 +83,8 @@ def luxRender(notify, samples, state, lightTranform, iesFileLock):
             wasNotified = notify.wait(10)
             if not wasNotified:
                 break
+            else:
+                state.value = RenderState.EDIT.value
             notify.clear()
 
         if state.value == RenderState.EDIT.value:
@@ -136,7 +138,7 @@ def luxRender(notify, samples, state, lightTranform, iesFileLock):
                     break
 
         except RuntimeError:
-            state.value = RenderState.EDIT.value
+            break
 
     session.Stop()
 
@@ -152,6 +154,9 @@ class Renderer():
         self.lightTranform = manager.list([self.getTransform()])
         # self.iesBlob = manager.list([base64.b64encode(b"")])
         self.iesFileLock = Lock()
+
+    def kill(self):
+        self.renderProcess.kill()
 
     def render(self, ies, peakintensity=100,
                position=[0.0, 0.5, 3.0], rotation=[0, 0, 0], samples=2):
@@ -171,6 +176,7 @@ class Renderer():
                                                self.lightTranform,
                                                self.iesFileLock))
             self.renderProcess.start()
+
         self.samples.value = samples
         if self.state.value == RenderState.WAITING.value:
             self.notify.set()

@@ -24,6 +24,7 @@ DEFAULT_LONG = 1
 
 class MixMethod(Enum):
     ADD = 'Add'
+    SUBTRACT = 'Subtract'
     MULTIPLY = 'Multiply'
     AVERAGE = 'Average'
     MIN = 'Minimum'
@@ -76,6 +77,8 @@ def mixIesData(ies1: IesData, ies2: IesData, method: MixMethod) -> IesData:
 
             if method == MixMethod.ADD:
                 points[point] = val1 + val2
+            elif method == MixMethod.SUBTRACT:
+                points[point] = val1 - val2
             elif method == MixMethod.MULTIPLY:
                 points[point] = val1 * val2
             elif method == MixMethod.AVERAGE:

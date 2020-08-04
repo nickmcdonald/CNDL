@@ -156,6 +156,10 @@ class DisplayNode(NodeDataModel):
 
         self._tabs.addTab(self._export_form, "Export")
 
+    def destroyed(self):
+        print("destroyed")
+        self._renderer.kill()
+
     def setLightPositionX(self, val):
         self._light_x_pos.setValue(val)
 
